@@ -1,12 +1,16 @@
 package com.example.demo.model.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,6 +42,13 @@ public class User {
 	@Column(name = "user_created_at")
 	private LocalDateTime userCreatedAt = LocalDateTime.now();
 	
+	
+	//follow功能需求
+	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followers = new ArrayList<>();
 }
 
 /*
