@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.model.entity;
 
 import java.time.LocalDateTime;
 
@@ -41,17 +41,6 @@ public class User {
 }
 
 /*
-   CREATE TABLE user(
-			user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT "用戶ID",
-    		username VARCHAR(50) NOT NULL UNIQUE COMMENT "用戶名",
-    		email VARCHAR(100) NOT NULL COMMENT "郵箱",
-    		password_hash VARCHAR(255) NOT NULL  COMMENT "密碼",
-			email_verified BOOLEAN DEFAULT FALSE COMMENT "郵箱驗證",
-    	user_created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "創建時間"
-	);
- */
-/*
- * USE myproject;
 CREATE TABLE user(
 	user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT "用戶ID",
     username VARCHAR(50) NOT NULL UNIQUE COMMENT "用戶名",
@@ -60,16 +49,7 @@ CREATE TABLE user(
 	email_verified BOOLEAN DEFAULT FALSE COMMENT "郵箱驗證",
     user_created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "創建時間"
 );
-ALTER TABLE artwork CHANGE artwork_create_at artwork_created_at INT;
 
-CREATE TABLE  artwork(
-	artwork_id INT AUTO_INCREMENT PRIMARY KEY COMMENT "作品ID",
-    user_id INT NOT NULL COMMENT "作品所屬用戶ID",
-    title VARCHAR(100) NOT NULL COMMENT "標題",
-    image_url VARCHAR(255) NOT NULL COMMENT "作品存儲位置",
-    artwork_created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "作品上傳時間",
-	FOREIGN KEY (user_id) REFERENCES user(user_id)
-);
 CREATE TABLE tag(
 	tag_id INT AUTO_INCREMENT PRIMARY KEY COMMENT "標籤id",
     tag_name VARCHAR(50) NOT NULL UNIQUE COMMENT "標籤名稱"
@@ -120,5 +100,4 @@ CREATE TABLE comment(
     FOREIGN KEY (user_id) REFERENCES user(user_id),
     FOREIGN KEY (artwork_id) REFERENCES artwork(artwork_id)
 );
-
- * */
+*/
