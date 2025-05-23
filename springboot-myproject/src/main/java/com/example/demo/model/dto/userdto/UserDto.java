@@ -1,17 +1,21 @@
 package com.example.demo.model.dto.userdto;
 
 import java.time.LocalDateTime;
-//註冊用dto,前端傳回資料
 
-public class UserRegisterDto {
+import lombok.Data;
+
+@Data
+public class UserDto {
 	
-	private String password;
-
+	private Integer userId;
+	
 	private String username;
-
+	
 	private String email;
-
+	
+	private Boolean verified;
+	
 	private LocalDateTime created;
-
+	
 	private String role;
 }

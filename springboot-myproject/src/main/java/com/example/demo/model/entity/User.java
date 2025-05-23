@@ -37,18 +37,22 @@ public class User {
 	private String passwordHash;
 	
 	@Column(name = "email_verified", nullable = false)
-	private Boolean emailVerified = false; //默認為未通過
+	private Boolean verified = false; //默認為未通過
 	
 	@Column(name = "user_created_at")
 	private LocalDateTime userCreatedAt = LocalDateTime.now();
 	
+	@Column(nullable = false)
+	private String role;  // 'USER' 或 'ADMIN'或"BAN"
 	
 	//follow功能需求
+	/**/
 	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followings = new ArrayList<>();
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followers = new ArrayList<>();
+    
 }
 
 /*
