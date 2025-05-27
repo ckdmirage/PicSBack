@@ -33,14 +33,14 @@ public class User {
 	@Column(nullable = false)
 	private String email;
 	
-	@Column(name = "password_hash", nullable = false)
+	@Column(name = "password", nullable = false)
 	private String passwordHash;
 	
-	@Column(name = "email_verified", nullable = false)
+	@Column(name = "verified", nullable = false)
 	private Boolean verified = false; //默認為未通過
 	
 	@Column(name = "user_created_at")
-	private LocalDateTime userCreatedAt = LocalDateTime.now();
+	private LocalDateTime Created = LocalDateTime.now();
 	
 	@Column(nullable = false)
 	private String role;  // 'USER' 或 'ADMIN'或"BAN"
