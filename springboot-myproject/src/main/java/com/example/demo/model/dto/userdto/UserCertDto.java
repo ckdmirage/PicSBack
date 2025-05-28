@@ -8,8 +8,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @ToString
-public class UserCert {
-	private Integer userId;
+public class UserCertDto {
 	
 	private String username;
 	
