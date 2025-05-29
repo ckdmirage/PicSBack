@@ -84,8 +84,14 @@
 			<artifactId>jakarta.validation-api</artifactId>
 			<version>3.0.2</version>
 		</dependency>
-		
-		
+
+		<!-- jwt用於生成token -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version> <!-- 或新版 -->
+		</dependency>
+
 	</dependencies>
 
 	<build>

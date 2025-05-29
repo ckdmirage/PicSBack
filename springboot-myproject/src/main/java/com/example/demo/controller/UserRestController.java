@@ -27,24 +27,17 @@ public class UserRestController {
 	private UserService userService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<ApiResponse<UserRegisterDto>> addUser(@Valid@RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult) throws UserException{
-		if(bindingResult.hasErrors()) {
-			throw new UserException("新增失敗:"+bindingResult.getAllErrors().get(0).getDefaultMessage());
-		}
-		userService.addUser(userRegisterDto);
-		return ResponseEntity.ok(ApiResponse.success("新增成功", userRegisterDto));
+	public ResponseEntity<ApiResponse<UserRegisterDto>> addUser(@Valid @RequestBody UserRegisterDto userRegisterDto) {
+	    userService.addUser(userRegisterDto);
+	    return ResponseEntity.ok(ApiResponse.success("新增成功", userRegisterDto));
 	}
-	
+
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse<UserCertDto>> login(@Valid@RequestBody UserLoginDto userLoginDto, BindingResult bindingResult) throws UserException{
-		if(bindingResult.hasErrors()) {
-			throw new UserException("登入失敗:"+bindingResult.getAllErrors().get(0).getDefaultMessage());
-		}
-		UserCertDto userCertDto =  userService.login(userLoginDto);
-		return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
-		
+	public ResponseEntity<ApiResponse<UserCertDto>> login(@Valid @RequestBody UserLoginDto userLoginDto) throws UserException {
+	    UserCertDto userCertDto = userService.login(userLoginDto);
+	    return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
 	}
-	
+
 	@GetMapping("/verify")
 	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token){
 		boolean isVerified = userService.verifyUserToken(token);

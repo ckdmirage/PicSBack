@@ -22,12 +22,13 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.VerificationTokenRepository;
 import com.example.demo.service.EmailService;
 import com.example.demo.service.UserService;
+import com.example.demo.util.JwtUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
 	
 	@Autowired 
-	UserRepository userRepository;
+	private UserRepository userRepository;
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -38,6 +39,8 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private VerificationTokenRepository verificationTokenRepository;
 	
+	@Autowired
+	private JwtUtil jwtUtil;
 	
 	//-----------登入----------
 	@Override
@@ -48,7 +51,9 @@ public class UserServiceImpl implements UserService{
 		if(!passwordEncoder.matches(userLoginDto.getPassword(),user.getPasswordHash())) {
 			throw new PasswordInvalidException("密碼錯誤");
 		}
-		return new UserCertDto(user.getUsername(), user.getRole());
+		
+		String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+		return new UserCertDto(user.getUsername(), user.getRole(), token);
 	}
 	
 	//-----------註冊----------

@@ -13,4 +13,6 @@ public class UserCertDto {
 	private String username;
 	
 	private String role;
+	
+	private String token;//上傳作品需要
 }
