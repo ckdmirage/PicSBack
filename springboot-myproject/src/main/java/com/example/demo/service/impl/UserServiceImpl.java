@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.exception.PasswordInvalidException;
 import com.example.demo.exception.UserException;
 import com.example.demo.exception.UserNoFoundException;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
@@ -42,6 +43,9 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	private JwtUtil jwtUtil;
 	
+	@Autowired
+	UserMapper userMapper;
+	
 	//-----------登入----------
 	@Override
 	public UserCertDto login(UserLoginDto userLoginDto) throws UserException {
@@ -52,6 +56,7 @@ public class UserServiceImpl implements UserService{
 			throw new PasswordInvalidException("密碼錯誤");
 		}
 		
+		//生成token回傳UserCertDto權限驗證
 		String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 		return new UserCertDto(user.getUsername(), user.getRole(), token);
 	}
@@ -109,9 +114,9 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Override
-	public UserDto getUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+	public UserDto getUserDto(String username) throws UserNoFoundException  {
+		Optional<User> optUser = userRepository.getUser(username);
+		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("使用者不存在")));
 	}
 	
 }

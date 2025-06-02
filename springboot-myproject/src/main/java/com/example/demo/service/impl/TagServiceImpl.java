@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.TagException;
 import com.example.demo.model.dto.tagdto.TagCreateDto;
@@ -13,6 +14,7 @@ import com.example.demo.model.entity.Tag;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.service.TagService;
 
+@Service
 public class TagServiceImpl implements TagService{
 	@Autowired
 	private TagRepository tagRepository;

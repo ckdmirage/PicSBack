@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	private static final String[] WHITELIST = { "/user/login", "/user/register", "/public" };
+	private static final String[] WHITELIST = { "/user/login", "/user/register", "/public" };	//無須登入也可訪問的白名單路徑
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -31,14 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		String path = request.getRequestURI();
 		for (String free : WHITELIST) {
+			//白名單:直接通過
 			if (path.startsWith(free)) {
 				filterChain.doFilter(request, response);
 				return;
 			}
 		}
-
+		
+		//獲取token
 		String authHeader = request.getHeader("Authorization");
-
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
 			try {
@@ -46,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				String username = claims.get("username", String.class);
 				String role = claims.get("role", String.class);
 				UserCertDto userCertDto = new UserCertDto(username, role, token);
-
+				//回傳給後端controller
 				request.setAttribute("userCertDto", userCertDto);
 				filterChain.doFilter(request, response);
 				return;

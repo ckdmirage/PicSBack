@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.exception.UserException;
+import com.example.demo.exception.UserNoFoundException;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
@@ -11,7 +12,8 @@ public interface UserService {
 
 	public void addUser(UserRegisterDto userRegisterDto);
 
-	public UserDto getUser(String username);
+	public UserDto getUserDto(String username) throws UserNoFoundException;//導向個人主頁
 
 	public boolean verifyUserToken(String token);
+	
 }

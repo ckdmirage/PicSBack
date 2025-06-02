@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
-//@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class UserRestController {
 	@Autowired
 	private UserService userService;
@@ -32,12 +33,14 @@ public class UserRestController {
 	    return ResponseEntity.ok(ApiResponse.success("新增成功", userRegisterDto));
 	}
 
+	
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<UserCertDto>> login(@Valid @RequestBody UserLoginDto userLoginDto) throws UserException {
 	    UserCertDto userCertDto = userService.login(userLoginDto);
 	    return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
 	}
-
+	
+	//郵箱驗證
 	@GetMapping("/verify")
 	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token){
 		boolean isVerified = userService.verifyUserToken(token);
