@@ -20,7 +20,7 @@ public class TagServiceImpl implements TagService{
 	private TagRepository tagRepository;
 	
 	@Override
-	public Tag addTag(TagCreateDto tagCreateDto) throws TagException {
+	public Tag addTag(TagCreateDto tagCreateDto){
 		Optional<Tag> optTag = tagRepository.getTag(tagCreateDto.getName());
 		if(optTag.isPresent()) {
 			throw new TagException("標籤重複!");

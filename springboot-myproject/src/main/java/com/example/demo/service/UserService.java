@@ -8,11 +8,11 @@ import com.example.demo.model.dto.userdto.UserLoginDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
 
 public interface UserService {
-	public UserCertDto login(UserLoginDto userLoginDto) throws UserException;
+	public UserCertDto login(UserLoginDto userLoginDto);
 
 	public void addUser(UserRegisterDto userRegisterDto);
 
-	public UserDto getUserDto(String username) throws UserNoFoundException;//導向個人主頁
+	public UserDto getUserDto(String username);//導向個人主頁
 
 	public boolean verifyUserToken(String token);
 	

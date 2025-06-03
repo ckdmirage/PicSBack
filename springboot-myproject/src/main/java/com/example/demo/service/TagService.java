@@ -8,7 +8,7 @@ import com.example.demo.model.entity.Tag;
 
 public interface TagService {
 	
-	Tag addTag(TagCreateDto tagDto)throws TagException;
+	Tag addTag(TagCreateDto tagDto);
 	
 	List<Tag> searchTags(String keyword);
 }

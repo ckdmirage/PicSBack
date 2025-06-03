@@ -12,6 +12,6 @@ public class ArtworkUploadDto {
 	private String title;
 	@NotBlank(message = "未上傳作品")
 	private String imageUrl;
-	private LocalDateTime uploaded;
+	private LocalDateTime uploaded = LocalDateTime.now();
 	private List<Integer> tagIds; 
 }

@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService{
 	
 	//-----------登入----------
 	@Override
-	public UserCertDto login(UserLoginDto userLoginDto) throws UserException {
+	public UserCertDto login(UserLoginDto userLoginDto){
 		//驗證密碼
 		User user = userRepository.getUser(userLoginDto.getUsername())
 				.orElseThrow(()-> new UserNoFoundException("用戶不存在"));
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Override
-	public UserDto getUserDto(String username) throws UserNoFoundException  {
+	public UserDto getUserDto(String username) {
 		Optional<User> optUser = userRepository.getUser(username);
 		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("使用者不存在")));
 	}
