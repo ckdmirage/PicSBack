@@ -112,10 +112,10 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	
-
+	//獲取單個用戶
 	@Override
-	public UserDto getUserDto(String username) {
-		Optional<User> optUser = userRepository.getUser(username);
+	public UserDto getUserDto(Integer userId) {
+		Optional<User> optUser = userRepository.findById(userId);
 		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("使用者不存在")));
 	}
 	

@@ -49,7 +49,7 @@ public class ArtworkRestController {
 	//瀏覽作品
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> ArtworkDisplay(@PathVariable Integer id){
-		ArtworkDisplayDto artworkDisplayDto = artworkService.getArtworkDisplayDtoById(id);
+		ArtworkDisplayDto artworkDisplayDto = artworkService.getArtworkDisplayDto(id);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkDisplayDto));
 	}
 	

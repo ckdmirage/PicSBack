@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 	//獲取單個作品
 	@Override
 	@Transactional
-	public ArtworkDisplayDto getArtworkDisplayDtoById(Integer artworkId) {
+	public ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId) {
 		Optional<Artwork> optArtwork = artworkRepository.findById(artworkId);
 		Artwork artwork = optArtwork.orElseThrow(()-> new ArtworkException("查無作品!"));
 		User user = artwork.getUser();
@@ -59,6 +60,15 @@ public class ArtworkServiceImpl implements ArtworkService {
 		artworkDisplayDto.setAuthorUsername(user.getUsername());
 		return artworkDisplayDto;
 	}
+	
+	
+	//獲取多個作品
+	@Override
+	public List<ArtworkDisplayDto> getArtworksDisplayDto(Integer userId) {
+		return null;
+		
+	}
+	
 	
 	
 	

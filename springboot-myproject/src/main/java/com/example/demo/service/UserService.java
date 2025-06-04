@@ -12,7 +12,7 @@ public interface UserService {
 
 	public void addUser(UserRegisterDto userRegisterDto);
 
-	public UserDto getUserDto(String username);//導向個人主頁
+	public UserDto getUserDto(Integer userId);//導向個人主頁
 
 	public boolean verifyUserToken(String token);
 	
