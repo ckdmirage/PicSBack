@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,8 +66,11 @@ public class ArtworkServiceImpl implements ArtworkService {
 	//獲取多個作品
 	@Override
 	public List<ArtworkDisplayDto> getArtworksDisplayDto(Integer userId) {
-		return null;
-		
+		List<Artwork> artworks = artworkRepository.findByUserId(userId);
+		if(artworks.isEmpty()) {
+			throw new ArtworkException("查無作品!");
+		}
+		return artworks.stream().map(artworkMapper::toDisplayDto).collect(Collectors.toList());
 	}
 	
 	

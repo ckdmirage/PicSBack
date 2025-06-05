@@ -29,7 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	private static final Set<String> WHITELIST = Set.of("/user/login", "/user/register", "/public");
+	private static final Set<String> WHITELIST = Set.of("/user/login", "/user/register", "/public", "/myprojectImg",
+		    "/static", "/css", "/js", "/images");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

@@ -48,22 +48,28 @@ public class ArtworkRestController {
 	
 	//瀏覽作品
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> ArtworkDisplay(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> artworkDisplay(@PathVariable Integer id){
 		ArtworkDisplayDto artworkDisplayDto = artworkService.getArtworkDisplayDto(id);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkDisplayDto));
 	}
 	
-
-	
-	
+	//新增標籤
 	@PostMapping("/tag/add")
 	public ResponseEntity<ApiResponse<Tag>> addTag(@RequestBody TagCreateDto tagCreateDto) throws TagException {
 		Tag tag = tagService.addTag(tagCreateDto);
 		return ResponseEntity.ok(ApiResponse.success("新增成功", tag));
 	}
 	
+	//搜索標籤
 	@GetMapping("/tag/search")
 	public ResponseEntity<ApiResponse<List<Tag>>> searchTags (@RequestParam ("keyword") String keyword){
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", tagService.searchTags(keyword)));
 	}
+	
+	//根據作者顯示作品
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> artworksDisplay(@PathVariable Integer userId){
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworksDisplayDto(userId)));
+	}
+	
 }

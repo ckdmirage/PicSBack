@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/user/login", "/user/register", "/public").permitAll()
+                .requestMatchers("/user/login", "/user/register", "/public", "/myprojectImg/**" ).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

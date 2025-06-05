@@ -42,7 +42,7 @@ public class User {
 	private Boolean verified = false; //默認為未通過
 	
 	@Column(name = "user_created_at")
-	private LocalDateTime Created = LocalDateTime.now();
+	private LocalDateTime created = LocalDateTime.now();
 	
 	@Column(nullable = false)
 	private String role;  // 'USER' 或 'ADMIN'或"BAN"
