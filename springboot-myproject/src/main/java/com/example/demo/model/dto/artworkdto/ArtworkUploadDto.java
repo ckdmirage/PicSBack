@@ -14,4 +14,5 @@ public class ArtworkUploadDto {
 	private String imageUrl;
 	private LocalDateTime uploaded = LocalDateTime.now();
 	private List<Integer> tagIds; 
+	private List<String> newTagnames;
 }

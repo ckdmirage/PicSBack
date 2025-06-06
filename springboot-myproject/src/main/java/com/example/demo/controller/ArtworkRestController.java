@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,6 +72,13 @@ public class ArtworkRestController {
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> artworksDisplay(@PathVariable Integer userId){
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworksDisplayDto(userId)));
+	}
+	
+	//刪除作品
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<String>> deleteArtwork(@PathVariable Integer id, @RequestHeader("Authorization") String token){
+	    artworkService.deleteArtwork(id, token);
+	    return ResponseEntity.ok(ApiResponse.success("刪除成功", null));
 	}
 	
 }

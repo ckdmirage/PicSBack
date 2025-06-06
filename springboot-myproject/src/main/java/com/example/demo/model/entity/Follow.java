@@ -1,5 +1,7 @@
 package com.example.demo.model.entity;
 
+import com.example.demo.model.entity.serializable.FollowId;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

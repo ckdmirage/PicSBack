@@ -13,4 +13,6 @@ public interface ArtworkService {
 	ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId);
 	
 	List<ArtworkDisplayDto> getArtworksDisplayDto(Integer userId);
+	
+	void deleteArtwork(Integer artworkId, String token);
 }

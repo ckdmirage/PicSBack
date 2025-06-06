@@ -36,4 +36,12 @@ public class JwtUtil {
 				.parseClaimsJws(token)
 				.getBody();
 	}
+	
+	public String extractUsername(String token) {
+	    return extractClaims(token).get("username", String.class);
+	}
+
+	public String extractRole(String token) {
+	    return extractClaims(token).get("role", String.class);
+	}
 }

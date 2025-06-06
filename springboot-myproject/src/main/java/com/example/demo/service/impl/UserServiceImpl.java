@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public UserDto getUserDto(Integer userId) {
 		Optional<User> optUser = userRepository.findById(userId);
-		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("使用者不存在")));
+		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("用戶不存在")));
 	}
 	
 }
