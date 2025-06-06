@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService{
 		}
 		
 		//生成token回傳UserCertDto權限驗證
-		String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+		String token = jwtUtil.generateToken(user.getId(),user.getUsername(), user.getRole());
 		return new UserCertDto(user.getUsername(), user.getRole(), token);
 	}
 	

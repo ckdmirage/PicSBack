@@ -19,29 +19,25 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 	private final Key key = Keys.hmacShaKeyFor("mySecretKeymySecretKeymySecretKey".getBytes()); // 至少 256 bits
 
-	public String generateToken(String username, String role) {
-		return Jwts.builder()
-				.claim("username", username)
-				.claim("role", role)
-				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-				.signWith(key, SignatureAlgorithm.HS256)
-				.compact();
+	public String generateToken(Integer userId, String username, String role) {
+		return Jwts.builder().claim("userId", userId).claim("username", username).claim("role", role)
+				.setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+				.signWith(key, SignatureAlgorithm.HS256).compact();
 	}
 
 	public Claims extractClaims(String token) {
-		return Jwts.parserBuilder()
-				.setSigningKey(key)
-				.build()
-				.parseClaimsJws(token)
-				.getBody();
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+	}
+	
+	public Integer extractUserId(String token) {
+		return extractClaims(token).get("userId", Integer.class);
 	}
 	
 	public String extractUsername(String token) {
-	    return extractClaims(token).get("username", String.class);
+		return extractClaims(token).get("username", String.class);
 	}
 
 	public String extractRole(String token) {
-	    return extractClaims(token).get("role", String.class);
+		return extractClaims(token).get("role", String.class);
 	}
 }
