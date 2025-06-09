@@ -31,8 +31,4 @@ public class Follow {
 	@JoinColumn(name = "following_id")
 	private User following;
 	
-	
-	
-	
-	
 }

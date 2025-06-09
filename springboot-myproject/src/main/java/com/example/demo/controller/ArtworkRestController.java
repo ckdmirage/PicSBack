@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.exception.TagException;
 import com.example.demo.exception.UnLoginException;
+import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
 import com.example.demo.model.dto.artworkdto.ArtworkUploadDto;
-import com.example.demo.model.dto.tagdto.TagCreateDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.entity.Artwork;
 import com.example.demo.model.entity.Tag;
@@ -40,7 +40,7 @@ public class ArtworkRestController {
 	@Autowired
 	private TagService tagService;
 	
-	//作品上傳需要驗證用戶登入的身分
+	//作品上傳(需要驗證用戶登入的身分)
 	@PostMapping("upload")
 	public ResponseEntity<ApiResponse<Artwork>> uploadArtwork(@RequestBody ArtworkUploadDto artworkUploadDto,
 			@RequestAttribute UserCertDto userCertDto) throws UnLoginException {
@@ -57,7 +57,7 @@ public class ArtworkRestController {
 	
 	//新增標籤
 	@PostMapping("/tag/add")
-	public ResponseEntity<ApiResponse<Tag>> addTag(@RequestBody TagCreateDto tagCreateDto) throws TagException {
+	public ResponseEntity<ApiResponse<Tag>> addTag(@RequestBody TagDto tagCreateDto) throws TagException {
 		Tag tag = tagService.addTag(tagCreateDto);
 		return ResponseEntity.ok(ApiResponse.success("新增成功", tag));
 	}

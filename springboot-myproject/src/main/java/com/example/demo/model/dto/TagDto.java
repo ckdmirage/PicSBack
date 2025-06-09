@@ -1,4 +1,4 @@
-package com.example.demo.model.dto.tagdto;
+package com.example.demo.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagCreateDto {
+public class TagDto {
 	
 	private String name;
 	

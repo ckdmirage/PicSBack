@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 	@EntityGraph(attributePaths = {"tags", "user"})
     List<Artwork> findByUserId(Integer userId);
 	
-
+	@Query("SELECT a FROM Artwork a LEFT JOIN FETCH a.tags WHERE a.id = :artworkId")
+	Optional<Artwork> findByIdWithTags(@Param("artworkId") Integer artworkId);
 }
 	

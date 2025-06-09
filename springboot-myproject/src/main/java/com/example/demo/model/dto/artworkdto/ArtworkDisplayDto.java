@@ -13,6 +13,6 @@ public class ArtworkDisplayDto {
 	private String title;
 	private String imageUrl;
 	private LocalDateTime uploaded;
-	private String authorUsername;
+	private Integer authorId;
 	private List<String> tagNames;
 }

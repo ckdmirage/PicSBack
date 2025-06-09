@@ -15,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	@Query(value = "select user_id, username, email, password_hash, email_verified, user_created_at, role from user where username=:username", nativeQuery = true)
 	Optional<User> getUser(String username);
 	
-
+	boolean existsByUsername(String username);
 }

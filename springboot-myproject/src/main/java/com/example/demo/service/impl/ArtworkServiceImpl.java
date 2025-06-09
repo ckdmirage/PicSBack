@@ -39,9 +39,6 @@ public class ArtworkServiceImpl implements ArtworkService {
 	private TagRepository tagRepository;
 
 	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
 	private ArtworkMapper artworkMapper;
 	
 	@Autowired
@@ -49,8 +46,9 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	// 上傳作品
 	@Override
+	@Transactional
 	public Artwork uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto) {
-	    User user = userRepository.getUser(userCertDto.getUsername())
+	    User user = userRepository.findById(userCertDto.getUserId())
 	        .orElseThrow(() -> new UnLoginException("尚未登入!"));
 
 	    Set<Integer> tagIds = new HashSet<>(); // 1. 用 Set 去重
@@ -94,13 +92,12 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	// 獲取單個作品
 	@Override
-	@Transactional
 	public ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId) {
-		Optional<Artwork> optArtwork = artworkRepository.findById(artworkId);
+		Optional<Artwork> optArtwork = artworkRepository.findByIdWithTags(artworkId);
 		Artwork artwork = optArtwork.orElseThrow(() -> new ArtworkException("查無作品!"));
 		User user = artwork.getUser();
 		ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
-		artworkDisplayDto.setAuthorUsername(user.getUsername());
+		artworkDisplayDto.setAuthorId(user.getId());
 		return artworkDisplayDto;
 	}
 
@@ -117,11 +114,12 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	//刪除作品
 	@Override
+	@Transactional
 	public void deleteArtwork(Integer artworkId, String token) {
 		if (token.startsWith("Bearer ")) {
 	        token = token.substring(7);
 	    }
-		User user = userRepository.getUser(jwtUtil.extractUsername(token)).orElseThrow(()-> new UnLoginException("用戶未登入!"));
+		User user = userRepository.findById(jwtUtil.extractUserId(token)).orElseThrow(()-> new UnLoginException("用戶未登入!"));
 		
 		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(()->new ArtworkException("作品不存在!"));
 		

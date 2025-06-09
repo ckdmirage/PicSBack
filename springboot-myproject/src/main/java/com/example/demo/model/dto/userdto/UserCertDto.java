@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class UserCertDto {
 	
-	private String username;
+	private Integer userId;
 	
 	private String role;
 	

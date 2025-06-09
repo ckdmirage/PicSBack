@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.TagException;
-import com.example.demo.model.dto.tagdto.TagCreateDto;
+import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.entity.Artwork;
 import com.example.demo.model.entity.Tag;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.service.TagService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class TagServiceImpl implements TagService{
@@ -20,7 +22,8 @@ public class TagServiceImpl implements TagService{
 	private TagRepository tagRepository;
 	
 	@Override
-	public Tag addTag(TagCreateDto tagCreateDto){
+	@Transactional
+	public Tag addTag(TagDto tagCreateDto){
 		Optional<Tag> optTag = tagRepository.getTag(tagCreateDto.getName());
 		if(optTag.isPresent()) {
 			throw new TagException("標籤重複!");

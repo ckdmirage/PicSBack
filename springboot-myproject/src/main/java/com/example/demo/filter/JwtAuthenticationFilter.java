@@ -29,15 +29,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	private static final Set<String> WHITELIST = Set.of("/user/login", "/user/register", "/public", "/myprojectImg",
-		    "/static", "/css", "/js", "/images");
+	private static final Set<String> WHITELIST = Set.of("/user/login", "/user/register", "/public",
+			"/myprojectImg", "/static", "/css", "/js", "/images");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
 		String path = request.getRequestURI();
-		if (WHITELIST.stream().anyMatch(path::startsWith)) {
+		if (WHITELIST.stream().anyMatch(path::startsWith)
+				// 放行 /like/count/3 這種
+				|| path.matches("^/like/count/\\d+$")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -48,18 +50,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String token = authHeader.substring(7);
 			try {
 				Claims claims = jwtUtil.extractClaims(token);
-				String username = claims.get("username", String.class);
 				String role = claims.get("role", String.class);
+				Integer userId = claims.get("userId", Integer.class);
 
 				// 設定使用者資訊到 SecurityContext
 				List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role)); // 必須加 "ROLE_"
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
 						null, authorities);
 
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 				// 若你還需要給 Controller 傳 userCertDto 也可以保留這行
-				request.setAttribute("userCertDto", new UserCertDto(username, role, token));
+				request.setAttribute("userCertDto", new UserCertDto(userId, role, token));
 
 				filterChain.doFilter(request, response);
 				return;
@@ -68,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				e.printStackTrace();
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.setContentType("application/json;charset=UTF-8");
-				response.getWriter().write("{\"status\":401,\"message\":\"Token 無效或過期\"}");
+				response.getWriter().write("{\"status\":401,\"message	\":\"Token 無效或過期\"}");
 				return;
 			}
 		}

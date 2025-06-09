@@ -19,7 +19,7 @@ public class ArtworkMapper {
 	
 	public ArtworkDisplayDto toDisplayDto(Artwork artwork) {
 		ArtworkDisplayDto artworkDisplayDto = modelMapper.map(artwork,ArtworkDisplayDto.class);
-		artworkDisplayDto.setAuthorUsername(artwork.getUser().getUsername());
+		artworkDisplayDto.setAuthorId(artwork.getUser().getId());
 		artworkDisplayDto.setTagNames(artwork.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
 		artworkDisplayDto.setUploaded(artwork.getArtworkCreatedAt());
 		return artworkDisplayDto;
