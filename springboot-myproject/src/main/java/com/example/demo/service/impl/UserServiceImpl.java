@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService{
 		
 		//生成token回傳UserCertDto權限驗證
 		String token = jwtUtil.generateToken(user.getId(),user.getUsername(), user.getRole());
-		return new UserCertDto(user.getId(), user.getRole(), token);
+		return new UserCertDto(user.getId(),user.getUsername() ,user.getRole(), token);
 	}
 	
 	//-----------註冊----------

@@ -12,6 +12,8 @@ public class UserCertDto {
 	
 	private Integer userId;
 	
+	private String username;
+	
 	private String role;
 	
 	private String token;//上傳作品需要

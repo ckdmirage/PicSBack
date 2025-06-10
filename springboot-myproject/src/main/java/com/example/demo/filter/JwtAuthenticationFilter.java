@@ -30,13 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private JwtUtil jwtUtil;
 
 	private static final Set<String> WHITELIST = Set.of("/user/login", "/user/register", "/public",
-			"/myprojectImg", "/static", "/css", "/js", "/images");
+			"/myprojectImg", "/static", "/css", "/js", "/images", "/user/verify");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
 		String path = request.getRequestURI();
+		System.out.println("Request path: " + path);
 		if (WHITELIST.stream().anyMatch(path::startsWith)
 				// 放行 /like/count/3 這種
 				|| path.matches("^/like/count/\\d+$")) {
@@ -50,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String token = authHeader.substring(7);
 			try {
 				Claims claims = jwtUtil.extractClaims(token);
+				String username = claims.get("username", String.class);
 				String role = claims.get("role", String.class);
 				Integer userId = claims.get("userId", Integer.class);
 
@@ -61,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 				// 若你還需要給 Controller 傳 userCertDto 也可以保留這行
-				request.setAttribute("userCertDto", new UserCertDto(userId, role, token));
+				request.setAttribute("userCertDto", new UserCertDto(userId, username, role, token));
 
 				filterChain.doFilter(request, response);
 				return;

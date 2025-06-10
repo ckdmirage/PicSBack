@@ -20,7 +20,7 @@ public class JwtUtil {
 	private final Key key = Keys.hmacShaKeyFor("mySecretKeymySecretKeymySecretKey".getBytes()); // 正常應當寫在私密的配置文件中
 
 	public String generateToken(Integer userId, String username, String role) {
-		return Jwts.builder().claim("userId", userId).claim("role", role)
+		return Jwts.builder().claim("userId", userId).claim("username", username).claim("role", role)
 				.setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
 				.signWith(key, SignatureAlgorithm.HS256).compact();
 	}
@@ -31,6 +31,10 @@ public class JwtUtil {
 	
 	public Integer extractUserId(String token) {
 		return extractClaims(token).get("userId", Integer.class);
+	}
+	
+	public String extractUsername(String token) {
+		return extractClaims(token).get("username", String.class);
 	}
 
 	public String extractRole(String token) {
