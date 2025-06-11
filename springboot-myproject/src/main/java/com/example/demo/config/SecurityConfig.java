@@ -26,7 +26,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/user/login", "/user/register", "/public", "/myprojectImg/**", "/like/count/**", "/user/verify"  ).permitAll()
+                .requestMatchers(
+                		"/user/login", "/user/register", "/user/verify", "/user/homepage/**", // 登入頁 註冊頁 郵箱驗證頁 用戶主頁
+                		"/artwork/user/**", "/artwork/**", // 用戶主頁作品列表 作品頁
+                		"/like/count/**", // 點讚數量 
+                		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
+                .permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
