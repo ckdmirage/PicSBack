@@ -8,11 +8,17 @@ import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.entity.Artwork;
 
 public interface ArtworkService {
-	Artwork uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto);
+	
+	ArtworkDisplayDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto);
 	
 	ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId);
 	
-	List<ArtworkDisplayDto> getArtworksDisplayDto(Integer userId);
+	List<ArtworkDisplayDto> getAllArtworkDtos();
+	
+	List<ArtworkDisplayDto> getArtworkDtosByUser(Integer userId);
+	
+	List<ArtworkDisplayDto> getArtworkDtosByTag(String tagname);
 	
 	void deleteArtwork(Integer artworkId, String token);
+	
 }

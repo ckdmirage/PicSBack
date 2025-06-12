@@ -28,38 +28,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String path = request.getRequestURI();
-        System.out.println("Request path: " + path);
-
-        // ✅ 白名單條件判斷（包含靜態路徑 + 正則處理動態路徑）
-        if (
+    
+    private boolean isWhiteListPath(String path, String method) {
+        return
         	// 用戶
-            path.startsWith("/user/login") ||
-            path.startsWith("/user/register") ||
-            path.startsWith("/user/verify") ||
-            path.matches("^/user/homepage/\\d+$") ||
+            path.startsWith("/user/login") ||				// 登入
+            path.startsWith("/user/register") ||			// 註冊
+            path.startsWith("/user/verify") ||				// 郵箱驗證
+            path.matches("^/user/homepage/\\d+$") ||		// 個人主頁
             
             // 作品
-            path.matches("^/artwork(/.*)?$") ||
-            path.matches("^/artwork/user/\\d+$") ||
-            
+            path.equals("/artwork/all") ||					// 主頁獲取所有作品
+            path.matches("^/artwork/\\d+$") ||				// 瀏覽作品
+            path.matches("^/artwork/user/\\d+$") ||			// 根據作者獲取作品列表
+            path.startsWith("/artwork/tag/") ||				// 標籤獲得作品列表
+
+            //標籤
+            (path.equals("/artwork/tag/search") && method.equals("GET")) ||						// 搜索標籤
+
             // 點讚數
-            path.matches("^/like/count/\\d+$")||
+            path.matches("^/like/count/\\d+$") ||
             
             // 圖片上傳
             path.startsWith("/public") ||
             path.startsWith("/myprojectImg") ||
             path.startsWith("/static") ||
-            path.startsWith("/css") || path.startsWith("/js") || path.startsWith("/images")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+            path.startsWith("/css") || path.startsWith("/js") || path.startsWith("/images");
+    }
+    
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+    	
+    	String path = request.getRequestURI();
+    	String method = request.getMethod();
+    	
+    	//System.out.println("🛠️ Path: " + path + ", Method: " + method);
+        //System.out.println("🧪 isWhiteListPath 判斷結果: " + isWhiteListPath(path, method));
+    	
+    	
+    	if ("OPTIONS".equalsIgnoreCase(method) || isWhiteListPath(path, method)) {
+    	    filterChain.doFilter(request, response);
+    	    return;
+    	}
 
         // ✅ 進入 token 驗證區
         String authHeader = request.getHeader("Authorization");

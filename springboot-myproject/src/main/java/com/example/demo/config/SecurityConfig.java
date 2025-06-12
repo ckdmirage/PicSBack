@@ -27,9 +27,10 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                		"/user/login", "/user/register", "/user/verify", "/user/homepage/**", // 登入頁 註冊頁 郵箱驗證頁 用戶主頁
-                		"/artwork/user/**", "/artwork/**", // 用戶主頁作品列表 作品頁
-                		"/like/count/**", // 點讚數量 
+                		"/user/login", "/user/register", "/user/verify", "/user/homepage/**", 			// 登入頁 註冊頁 郵箱驗證頁 用戶主頁
+                		"/artwork/all", "/artwork/user/**", "/artwork/{id:[\\d]+}", 					// 所有作品表 作者作品表 單個作品
+                		"/artwork/tag/**",	 															// 標籤作品表&搜索					
+                		"/like/count/**", 																// 點讚數量 
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
                 .anyRequest().authenticated()

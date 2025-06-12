@@ -42,10 +42,10 @@ public class ArtworkRestController {
 	
 	//作品上傳(需要驗證用戶登入的身分)
 	@PostMapping("upload")
-	public ResponseEntity<ApiResponse<Artwork>> uploadArtwork(@RequestBody ArtworkUploadDto artworkUploadDto,
+	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> uploadArtwork(@RequestBody ArtworkUploadDto artworkUploadDto,
 			@RequestAttribute UserCertDto userCertDto) throws UnLoginException {
-		Artwork artwork = artworkService.uploadArtwork(userCertDto, artworkUploadDto);
-		return ResponseEntity.ok(ApiResponse.success("上傳成功!", artwork));
+		ArtworkDisplayDto artworkDisplayDto =  artworkService.uploadArtwork(userCertDto, artworkUploadDto);
+		return ResponseEntity.ok(ApiResponse.success("上傳成功!", artworkDisplayDto));
 	}
 	
 	//瀏覽作品
@@ -53,6 +53,26 @@ public class ArtworkRestController {
 	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> artworkDisplay(@PathVariable Integer id){
 		ArtworkDisplayDto artworkDisplayDto = artworkService.getArtworkDisplayDto(id);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkDisplayDto));
+	}
+	
+	//獲取所有作品(主頁)
+	@GetMapping("/all")
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getAllArtworks() {
+	    List<ArtworkDisplayDto> artworks = artworkService.getAllArtworkDtos();
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworks));
+	}
+	
+	//根據作者顯示作品
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getArtworksByUser(@PathVariable Integer userId){
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUser(userId)));
+	}
+	
+	//刪除作品
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<String>> deleteArtwork(@PathVariable Integer id, @RequestHeader("Authorization") String token){
+	    artworkService.deleteArtwork(id, token);
+	    return ResponseEntity.ok(ApiResponse.success("刪除成功", null));
 	}
 	
 	//新增標籤
@@ -68,17 +88,10 @@ public class ArtworkRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", tagService.searchTags(keyword)));
 	}
 	
-	//根據作者顯示作品
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> artworksDisplay(@PathVariable Integer userId){
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworksDisplayDto(userId)));
-	}
-	
-	//刪除作品
-	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse<String>> deleteArtwork(@PathVariable Integer id, @RequestHeader("Authorization") String token){
-	    artworkService.deleteArtwork(id, token);
-	    return ResponseEntity.ok(ApiResponse.success("刪除成功", null));
+	//根據標籤顯示作品
+	@GetMapping("/tag/{tagname}")
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getArtworksByTag(@PathVariable String tagname){
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTag(tagname)));
 	}
 	
 }

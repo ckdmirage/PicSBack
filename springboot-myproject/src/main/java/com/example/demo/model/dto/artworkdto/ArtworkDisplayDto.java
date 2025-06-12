@@ -14,5 +14,6 @@ public class ArtworkDisplayDto {
 	private String imageUrl;
 	private LocalDateTime uploaded;
 	private Integer authorId;
+	private String authorname;
 	private List<String> tagNames;
 }

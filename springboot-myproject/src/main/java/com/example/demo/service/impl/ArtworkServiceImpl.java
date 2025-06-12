@@ -47,7 +47,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 	// 上傳作品
 	@Override
 	@Transactional
-	public Artwork uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto) {
+	public ArtworkDisplayDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto) {
 	    User user = userRepository.findById(userCertDto.getUserId())
 	        .orElseThrow(() -> new UnLoginException("尚未登入!"));
 
@@ -85,7 +85,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 	        artworkUploadDto.getUploaded(),
 	        allTags
 	    );
-	    return artworkRepository.save(artwork);
+	    return artworkMapper.toDisplayDto(artworkRepository.save(artwork));
 	}
 
 
@@ -98,17 +98,54 @@ public class ArtworkServiceImpl implements ArtworkService {
 		User user = artwork.getUser();
 		ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
 		artworkDisplayDto.setAuthorId(user.getId());
+		artworkDisplayDto.setAuthorname(user.getUsername());
 		return artworkDisplayDto;
 	}
-
-	// 獲取多個作品
+	
+	// 獲取所有作品
 	@Override
-	public List<ArtworkDisplayDto> getArtworksDisplayDto(Integer userId) {
+	public List<ArtworkDisplayDto> getAllArtworkDtos(){
+		List<Artwork> artworks = artworkRepository.findAllWithTagsAndUser();
+		if (artworks.isEmpty()) {
+			throw new ArtworkException("查無作品!");
+		}
+		return artworks.stream().map(artwork->{
+			ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
+			artworkDisplayDto.setAuthorId(artwork.getUser().getId());
+			artworkDisplayDto.setAuthorname(artwork.getUser().getUsername());
+			return artworkDisplayDto;
+		}).collect(Collectors.toList());
+	}
+	
+
+	// 獲取作者作品表
+	@Override
+	public List<ArtworkDisplayDto> getArtworkDtosByUser(Integer userId) {
 		List<Artwork> artworks = artworkRepository.findByUserId(userId);
 		if (artworks.isEmpty()) {
 			throw new ArtworkException("查無作品!");
 		}
-		return artworks.stream().map(artworkMapper::toDisplayDto).collect(Collectors.toList());
+		return artworks.stream().map(artwork->{
+			ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
+			artworkDisplayDto.setAuthorId(artwork.getUser().getId());
+			artworkDisplayDto.setAuthorname(artwork.getUser().getUsername());
+			return artworkDisplayDto;
+		}).collect(Collectors.toList());
+	}
+	
+	//獲取標籤作品表
+	@Override
+	public List<ArtworkDisplayDto> getArtworkDtosByTag(String tagname) {
+		List<Artwork> artworks = artworkRepository.findByTagName(tagname);
+		if (artworks.isEmpty()) {
+			throw new ArtworkException("查無作品!");
+		}
+		return artworks.stream().map(artwork->{
+			ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
+			artworkDisplayDto.setAuthorId(artwork.getUser().getId());
+			artworkDisplayDto.setAuthorname(artwork.getUser().getUsername());
+			return artworkDisplayDto;
+		}).collect(Collectors.toList());
 	}
 
 
