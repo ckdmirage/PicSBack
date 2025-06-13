@@ -27,7 +27,7 @@ public class LikesController {
 	@Autowired
 	private JwtUtil jwtUtil;
 	
-
+	//點讚
 	@PostMapping("/{artworkId}")
 	public ResponseEntity<ApiResponse<String>> addLike(@RequestAttribute UserCertDto userCertDto, @PathVariable Integer artworkId){
 		Integer userId = userCertDto.getUserId();
@@ -35,7 +35,7 @@ public class LikesController {
 		return ResponseEntity.ok(ApiResponse.success("點讚成功", null));
 	}
 	
-
+	//取消點讚
 	@DeleteMapping("/{artworkId}")
 	public ResponseEntity<ApiResponse<String>> unLike(@RequestAttribute UserCertDto userCertDto, @PathVariable Integer artworkId){
 		Integer userId = userCertDto.getUserId();
@@ -43,12 +43,14 @@ public class LikesController {
 		return ResponseEntity.ok(ApiResponse.success("取消成功", null));
 	}
 	
+	//查詢點讚數
 	@GetMapping("/count/{artworkId}")
 	public ResponseEntity<ApiResponse<Integer>> countLike(@PathVariable Integer artworkId){
 		Integer count = likesService.getLikeCount(artworkId);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", count));
 	}
 	
+	//判斷是否點讚(前端渲染用)
 	@GetMapping("/hasLiked/{artworkId}")
 	public ResponseEntity<ApiResponse<Boolean>> hasLiked(@RequestAttribute UserCertDto userCertDto, @PathVariable Integer artworkId){
 		Integer userId = userCertDto.getUserId();

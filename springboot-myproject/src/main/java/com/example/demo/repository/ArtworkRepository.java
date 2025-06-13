@@ -19,7 +19,8 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 	@Query("SELECT a FROM Artwork a LEFT JOIN FETCH a.tags LEFT JOIN FETCH a.user WHERE a.id = :artworkId")
 	Optional<Artwork> findByIdWithTags(@Param("artworkId") Integer artworkId);
 	
-	@Query("SELECT DISTINCT a FROM Artwork a JOIN FETCH a.tags t WHERE t.name = :tagName")
+	@EntityGraph(attributePaths = {"tags", "user"})
+	@Query("SELECT a FROM Artwork a JOIN a.tags t WHERE t.name = :tagName")
 	List<Artwork> findByTagName(@Param("tagName") String tagName);
 	
 	@EntityGraph(attributePaths = {"tags", "user"})
