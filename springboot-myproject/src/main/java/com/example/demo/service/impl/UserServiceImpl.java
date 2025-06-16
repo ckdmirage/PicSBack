@@ -2,8 +2,10 @@ package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -126,4 +128,9 @@ public class UserServiceImpl implements UserService{
 		return userMapper.toDto(optUser.orElseThrow(()-> new UserNoFoundException("用戶不存在")));
 	}
 	
+	//模糊搜索用戶
+	public List<UserDto> searchByKeyword(String keyword){
+		List<User> users = userRepository.findByUsernameContainingIgnoreCase(keyword);
+		return users.stream().map(userMapper::toDto).collect(Collectors.toList());
+	}
 }

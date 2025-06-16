@@ -44,7 +44,7 @@ public class LikesServiceImpl implements LikesService {
 	
 	//作品讚數
 	@Override
-	public int getLikeCount(Integer artworkId) {
+	public Integer getLikeCount(Integer artworkId) {
 		return likesRepository.countByArtworkId(artworkId);
 	}
 

@@ -35,17 +35,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             path.startsWith("/user/login") ||				// 登入
             path.startsWith("/user/register") ||			// 註冊
             path.startsWith("/user/verify") ||				// 郵箱驗證
-            path.matches("^/user/homepage/\\d+$") ||		// 個人主頁
+            path.startsWith("/user/homepage/") ||		// 個人主頁
             
             // 作品
-            path.equals("/artwork/all") ||					// 主頁獲取所有作品
-            path.matches("^/artwork/\\d+$") ||				// 瀏覽作品
-            path.matches("^/artwork/user/\\d+$") ||			// 根據作者獲取作品列表
-            path.startsWith("/artwork/tag/") ||				// 標籤獲得作品列表
+            (path.equals("/artwork") && method.equals("GET")) ||                        // 主頁查詢全部作品（含 sort 參數）
+            path.matches("^/artwork/\\d+$") ||                                          // 瀏覽單個作品
+            path.matches("^/artwork/user/\\d+$") ||                                     // 指定作者作品集
+            path.matches("^/artwork/tag/[^/]+$") ||                                     // 指定標籤作品集
 
-            //標籤
+            // 標籤
             (path.equals("/artwork/tag/search") && method.equals("GET")) ||						// 搜索標籤
 
+            // 搜尋功能白名單
+            (path.equals("/search/user") && method.equals("GET")) ||
+            (path.equals("/search/artwork") && method.equals("GET")) ||
+            (path.equals("/search/tag") && method.equals("GET")) ||
+            
             // 點讚數
             path.matches("^/like/count/\\d+$") ||
             

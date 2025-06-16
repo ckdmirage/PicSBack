@@ -42,8 +42,8 @@ public class Artwork {
 	@Column(name = "image_url", length = 255, nullable = false, unique = true)
 	private String imageUrl;
 
-	@Column(name = "artwork_created_at")
-	private LocalDateTime artworkCreatedAt = LocalDateTime.now();
+	@Column(name = "uploaded")
+	private LocalDateTime uploaded = LocalDateTime.now();
 
 	@ManyToMany()
 	@JoinTable(name = "artwork_tag", joinColumns = @JoinColumn(name = "artwork_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))

@@ -13,12 +13,13 @@ public interface ArtworkService {
 	
 	ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId);
 	
-	List<ArtworkDisplayDto> getAllArtworkDtos();
-	
-	List<ArtworkDisplayDto> getArtworkDtosByUser(Integer userId);
-	
-	List<ArtworkDisplayDto> getArtworkDtosByTag(String tagname);
-	
 	void deleteArtwork(Integer artworkId, String token);
 	
+	List<ArtworkDisplayDto> getAllArtworkDtosSorted(String sortType);
+
+	List<ArtworkDisplayDto> getArtworkDtosByUserSorted(Integer userId, String sortType);
+	
+	List<ArtworkDisplayDto> getArtworkDtosByTagSorted(String tagname, String sortType);
+	
+	List<ArtworkDisplayDto> searchByTitle(String keyword);
 }

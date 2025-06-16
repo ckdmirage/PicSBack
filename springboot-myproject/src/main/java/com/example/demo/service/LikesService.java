@@ -5,7 +5,7 @@ public interface LikesService {
 
 	void unlikeArtwork(Integer userId, Integer artworkId);
 
-	int getLikeCount(Integer artworkId);
+	Integer getLikeCount(Integer artworkId);
 
 	boolean hasLiked(Integer userId, Integer artworkId);
 }

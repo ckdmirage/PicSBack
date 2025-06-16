@@ -12,7 +12,7 @@ public class ArtworkUploadDto {
 	private String title;
 	@NotBlank(message = "未上傳作品")
 	private String imageUrl;
-	private LocalDateTime uploaded = LocalDateTime.now();
+	private LocalDateTime uploaded;
 	private List<Integer> tagIds; 
 	private List<String> newTagnames;
 }

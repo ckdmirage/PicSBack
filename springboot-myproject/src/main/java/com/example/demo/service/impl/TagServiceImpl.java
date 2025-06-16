@@ -37,4 +37,11 @@ public class TagServiceImpl implements TagService{
 		return tagRepository.findByNameContainingIgnoreCase(keyword);
 	}
 
+	public List<TagDto> searchByName(String keyword) {
+	    return tagRepository.findByNameContainingIgnoreCase(keyword)
+	        .stream()
+	        .map(tag -> new TagDto(tag.getId(),tag.getName()))
+	        .toList();
+	}
+
 }

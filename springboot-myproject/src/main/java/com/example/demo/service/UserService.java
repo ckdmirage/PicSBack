@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import com.example.demo.exception.UserException;
 import com.example.demo.exception.UserNoFoundException;
 import com.example.demo.model.dto.userdto.UserCertDto;
@@ -8,12 +10,13 @@ import com.example.demo.model.dto.userdto.UserLoginDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
 
 public interface UserService {
-	public UserCertDto login(UserLoginDto userLoginDto);
+	UserCertDto login(UserLoginDto userLoginDto);
 
-	public void addUser(UserRegisterDto userRegisterDto);
+	void addUser(UserRegisterDto userRegisterDto);
 
-	public UserDto getUserDto(Integer userId);//導向個人主頁
+	UserDto getUserDto(Integer userId);//導向個人主頁
 
-	public boolean verifyUserToken(String token);
+	boolean verifyUserToken(String token);
 	
+	List<UserDto> searchByKeyword(String keyword);
 }

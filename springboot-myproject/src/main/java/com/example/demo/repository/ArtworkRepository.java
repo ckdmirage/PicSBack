@@ -16,6 +16,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 	@EntityGraph(attributePaths = {"tags", "user"})
     List<Artwork> findByUserId(Integer userId);
 	
+	//獲取單作品及其tag
 	@Query("SELECT a FROM Artwork a LEFT JOIN FETCH a.tags LEFT JOIN FETCH a.user WHERE a.id = :artworkId")
 	Optional<Artwork> findByIdWithTags(@Param("artworkId") Integer artworkId);
 	
@@ -25,6 +26,13 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 	
 	@EntityGraph(attributePaths = {"tags", "user"})
 	@Query("SELECT a FROM Artwork a") // 可以省略，保留方便看
-	List<Artwork> findAllWithTagsAndUser();
+	List<Artwork> findAllWithTagsUser();
+	
+
+
+	
+	//模糊搜索
+	@EntityGraph(attributePaths = {"tags", "user"})
+	List<Artwork> findByTitleContainingIgnoreCase(String keyword);
 }
 	

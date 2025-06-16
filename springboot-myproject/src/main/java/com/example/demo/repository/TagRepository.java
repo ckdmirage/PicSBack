@@ -16,4 +16,5 @@ public interface TagRepository extends JpaRepository<Tag, Integer>{
 	
 	 // 模糊搜尋（不區分大小寫）
     List<Tag> findByNameContainingIgnoreCase(String keyword);
+    
 }

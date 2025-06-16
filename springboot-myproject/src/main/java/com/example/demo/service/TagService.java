@@ -11,4 +11,6 @@ public interface TagService {
 	Tag addTag(TagDto tagDto);
 	
 	List<Tag> searchTags(String keyword);
+	
+	List<TagDto> searchByName(String keyword);
 }

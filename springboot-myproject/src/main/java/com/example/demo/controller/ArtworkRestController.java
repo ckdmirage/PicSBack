@@ -56,16 +56,29 @@ public class ArtworkRestController {
 	}
 	
 	//獲取所有作品(主頁)
-	@GetMapping("/all")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getAllArtworks() {
-	    List<ArtworkDisplayDto> artworks = artworkService.getAllArtworkDtos();
-	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworks));
+	@GetMapping
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getAllSorted(
+	    @RequestParam(defaultValue = "newest") String sort
+	) {
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getAllArtworkDtosSorted(sort)));
 	}
 	
 	//根據作者顯示作品
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getArtworksByUser(@PathVariable Integer userId){
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUser(userId)));
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getByUserSorted(
+	    @PathVariable Integer userId,
+	    @RequestParam(defaultValue = "newest") String sort
+	) {
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUserSorted(userId, sort)));
+	}
+	
+	//根據標籤顯示作品
+	@GetMapping("/tag/{tagname}")
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getByTagSorted(
+	    @PathVariable String tagname,
+	    @RequestParam(defaultValue = "newest") String sort
+	) {
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTagSorted(tagname, sort)));
 	}
 	
 	//刪除作品
@@ -88,10 +101,7 @@ public class ArtworkRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", tagService.searchTags(keyword)));
 	}
 	
-	//根據標籤顯示作品
-	@GetMapping("/tag/{tagname}")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getArtworksByTag(@PathVariable String tagname){
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTag(tagname)));
-	}
 	
+	
+	//
 }

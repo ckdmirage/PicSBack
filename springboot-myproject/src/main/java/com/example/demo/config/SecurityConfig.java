@@ -28,8 +28,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                 		"/user/login", "/user/register", "/user/verify", "/user/homepage/**", 			// 登入頁 註冊頁 郵箱驗證頁 用戶主頁
-                		"/artwork/all", "/artwork/user/**", "/artwork/{id:[\\d]+}", 					// 所有作品表 作者作品表 單個作品
-                		"/artwork/tag/**",	 															// 標籤作品表&搜索					
+                		"/artwork", "/artwork/user/**", "/artwork/tag/**",								// 所有作品表 作者作品表 標籤作品表
+                		"/artwork/tag/**","/artwork/{id:[\\d]+}", 										// 標籤搜索 單個作品	
+                		 "/search/user", "/search/artwork", "/search/tag",								// 搜索欄: 作者 作品 標籤
                 		"/like/count/**", 																// 點讚數量 
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
