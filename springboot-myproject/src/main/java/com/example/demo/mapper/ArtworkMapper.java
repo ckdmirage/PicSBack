@@ -1,14 +1,12 @@
 package com.example.demo.mapper;
 
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
 import com.example.demo.model.entity.Artwork;
-import com.example.demo.model.entity.Tag;
 import com.example.demo.repository.LikesRepository;
 
 @Component
@@ -23,7 +21,11 @@ public class ArtworkMapper {
 		ArtworkDisplayDto artworkDisplayDto = modelMapper.map(artwork,ArtworkDisplayDto.class);
 		artworkDisplayDto.setAuthorId(artwork.getUser().getId());
 		artworkDisplayDto.setAuthorname(artwork.getUser().getUsername());
-		artworkDisplayDto.setTagNames(artwork.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+		artworkDisplayDto.setTagDtos(
+			    artwork.getTags().stream()
+			        .map(tag -> new TagDto(tag.getId(), tag.getName()))
+			        .toList()
+			);
 		return artworkDisplayDto;
 	}
 }

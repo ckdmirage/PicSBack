@@ -1,7 +1,10 @@
 package com.example.demo.model.entity;
 
+import java.time.LocalDateTime;
+
 import com.example.demo.model.entity.serializable.FollowId;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -30,5 +33,8 @@ public class Follow {
 	@MapsId("followingId")
 	@JoinColumn(name = "following_id")
 	private User following;
+	
+	@Column(name = "created_at")
+	private LocalDateTime createdAt = LocalDateTime.now();
 	
 }

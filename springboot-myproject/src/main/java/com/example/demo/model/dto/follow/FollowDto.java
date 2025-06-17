@@ -1,4 +1,4 @@
-package com.example.demo.model.dto;
+package com.example.demo.model.dto.follow;
 
 import java.time.LocalDateTime;
 

@@ -97,11 +97,11 @@ public class ArtworkRestController {
 	
 	//搜索標籤
 	@GetMapping("/tag/search")
-	public ResponseEntity<ApiResponse<List<Tag>>> searchTags (@RequestParam ("keyword") String keyword){
+	public ResponseEntity<ApiResponse<List<TagDto>>> searchTags (@RequestParam ("keyword") String keyword){
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", tagService.searchTags(keyword)));
 	}
 	
 	
-	
+		
 	//
 }

@@ -14,65 +14,94 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.dto.FollowDto;
+import com.example.demo.model.dto.follow.FollowCountDto;
+import com.example.demo.model.dto.follow.FollowDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
+import com.example.demo.model.enums.FollowType;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.FollowService;
 
 @RestController
-@RequestMapping("/api/follow")
+@RequestMapping("/follow")
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class FollowController {
 	@Autowired
 	private FollowService followService;
 
-	@PostMapping("/{followerId}/{followingId}")
-	public ResponseEntity<ApiResponse<String>> follow(@PathVariable Integer followerId,
-			@PathVariable Integer followingId) {
-		followService.follow(followerId, followingId);
+	@PostMapping("/{targetUserId}")
+	public ResponseEntity<ApiResponse<String>> follow(@RequestAttribute UserCertDto userCertDto,
+			@PathVariable Integer targetUserId) {
+		followService.follow(userCertDto.getUserId(), targetUserId);
 		return ResponseEntity.ok(ApiResponse.success("關注成功", null));
 	}
 
-	@DeleteMapping("/{followerId}/{followingId}")
-	public ResponseEntity<ApiResponse<String>> unfollow(@PathVariable Integer followerId,
-			@PathVariable Integer followingId) {
-		followService.unfollow(followerId, followingId);
-		return ResponseEntity.ok(ApiResponse.success("取消關注成功", null));
+	@DeleteMapping("/{targetUserId}")
+	public ResponseEntity<ApiResponse<String>> unfollow(
+	    @RequestAttribute UserCertDto userCertDto,
+	    @PathVariable Integer targetUserId
+	) {
+	    followService.unfollow(userCertDto.getUserId(), targetUserId);
+	    return ResponseEntity.ok(ApiResponse.success("取消關注成功", null));
 	}
 	
-	//追蹤列表
-	@GetMapping("/following")
-	public ResponseEntity<ApiResponse<List<FollowDto>>> getfollowings(@RequestAttribute UserCertDto userCertDto){
-		
-		List<FollowDto> followings = followService.getFollowings(userCertDto.getUserId());
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", followings));
-	}
-	
-	//粉絲列表
-	@GetMapping("/follower")
-	public ResponseEntity<ApiResponse<List<FollowDto>>> getFollowers(@RequestAttribute UserCertDto userCertDto) {
-		List<FollowDto> followers = followService.getFollowers(userCertDto.getUserId());
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", followers));
-	}
-	
-	//確認追蹤
+	// 確認追蹤
 	@GetMapping("/hasfollowed")
-	public ResponseEntity<ApiResponse<Boolean>> hasFollowed(@RequestParam Integer followerId, @RequestParam Integer followingId){
-		Boolean hasFollowed = followService.hasFollowed(followerId, followingId);
+	public ResponseEntity<ApiResponse<Boolean>> hasFollowed(@RequestAttribute UserCertDto userCertDto,
+			@RequestParam Integer followingId) {
+		Boolean hasFollowed = followService.hasFollowed(userCertDto.getUserId(), followingId);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", hasFollowed));
 	}
-	
-	//追蹤人數
-	@GetMapping("/following/count")
-	public ResponseEntity<ApiResponse<Integer>> countFollowing(@RequestAttribute UserCertDto userCertDto){
-		Integer count = followService.countFollowings(userCertDto.getUserId());
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", count));
+
+	// 查某人粉絲/追蹤數量
+	@GetMapping("/count/{userId}")
+	public ResponseEntity<ApiResponse<FollowCountDto>> getFollowCounts(@PathVariable Integer userId) {
+		int followers = followService.countFollows(userId, FollowType.FOLLOWERS);
+		int followings = followService.countFollows(userId, FollowType.FOLLOWINGS);
+		FollowCountDto dto = new FollowCountDto(followers, followings);
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", dto));
 	}
-	
-	//粉絲數
-	@GetMapping("/follower/count")
-	public ResponseEntity<ApiResponse<Integer>> countFollower(@RequestAttribute UserCertDto userCertDto){
-		Integer count = followService.countFollowers(userCertDto.getUserId());
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", count));
+
+	// 自己追蹤列表
+	@GetMapping("/following")
+	public ResponseEntity<ApiResponse<List<FollowDto>>> getMyFollowings(@RequestAttribute UserCertDto userCertDto) {
+		List<FollowDto> result = followService.getFollowings(userCertDto.getUserId());
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
 	}
+
+	// 他人追蹤列表
+	@GetMapping("/following/{userId}")
+	public ResponseEntity<ApiResponse<List<FollowDto>>> getUserFollowings(@PathVariable Integer userId) {
+		List<FollowDto> result = followService.getFollowings(userId);
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+	}
+
+	// 自己粉絲列表
+	@GetMapping("/follower")
+	public ResponseEntity<ApiResponse<List<FollowDto>>> getMyFollowers(@RequestAttribute UserCertDto userCertDto) {
+		List<FollowDto> result = followService.getFollowers(userCertDto.getUserId());
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+	}
+
+	// 他人粉絲列表
+	@GetMapping("/follower/{userId}")
+	public ResponseEntity<ApiResponse<List<FollowDto>>> getUserFollowers(@PathVariable Integer userId) {
+		List<FollowDto> result = followService.getFollowers(userId);
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+	}
+
+	/*
+	 * //追蹤人數
+	 * 
+	 * @GetMapping("/following/count") public ResponseEntity<ApiResponse<Integer>>
+	 * countFollowing(@RequestAttribute UserCertDto userCertDto){ Integer count =
+	 * followService.countFollowings(userCertDto.getUserId()); return
+	 * ResponseEntity.ok(ApiResponse.success("查詢成功", count)); }
+	 * 
+	 * //粉絲數
+	 * 
+	 * @GetMapping("/follower/count") public ResponseEntity<ApiResponse<Integer>>
+	 * countFollower(@RequestAttribute UserCertDto userCertDto){ Integer count =
+	 * followService.countFollowers(userCertDto.getUserId()); return
+	 * ResponseEntity.ok(ApiResponse.success("查詢成功", count)); }
+	 */
 }

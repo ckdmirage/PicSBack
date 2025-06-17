@@ -33,8 +33,11 @@ public class TagServiceImpl implements TagService{
 	}
 
 	@Override
-	public List<Tag> searchTags(String keyword) {
-		return tagRepository.findByNameContainingIgnoreCase(keyword);
+	public List<TagDto> searchTags(String keyword) {
+		return tagRepository.findByNameContainingIgnoreCase(keyword)
+	            .stream()
+	            .map(tag -> new TagDto(tag.getId(), tag.getName()))
+	            .toList();
 	}
 
 	public List<TagDto> searchByName(String keyword) {

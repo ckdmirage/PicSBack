@@ -31,9 +31,11 @@ public class SecurityConfig {
                 		"/artwork", "/artwork/user/**", "/artwork/tag/**",								// 所有作品表 作者作品表 標籤作品表
                 		"/artwork/tag/**","/artwork/{id:[\\d]+}", 										// 標籤搜索 單個作品	
                 		 "/search/user", "/search/artwork", "/search/tag",								// 搜索欄: 作者 作品 標籤
+                		 "/follow/count/**", "/follow/following/**", "/follow/follower/**",				// 追蹤/粉絲數 追蹤列表 粉絲列表
                 		"/like/count/**", 																// 點讚數量 
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
+                .requestMatchers("/follow/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

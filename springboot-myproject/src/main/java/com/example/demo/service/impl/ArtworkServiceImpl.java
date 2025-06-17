@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,7 +80,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 		// 5. 存作品
 		Artwork artwork = new Artwork(null, user, artworkUploadDto.getTitle(), artworkUploadDto.getImageUrl(),
 				artworkUploadDto.getUploaded(), allTags);
-
+		artwork.setUploaded(LocalDateTime.now());
 		ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artworkRepository.save(artwork));
 		artworkDisplayDto.setLikes(likesRepository.countByArtworkId(artwork.getId()));
 		return artworkDisplayDto;
