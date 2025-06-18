@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.exception.FollowException;
 import com.example.demo.exception.UserNoFoundException;
 import com.example.demo.mapper.UserMapper;
-import com.example.demo.model.dto.follow.FollowDto;
+import com.example.demo.model.dto.followDto.FollowDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.entity.Follow;
 import com.example.demo.model.entity.User;
@@ -85,29 +85,24 @@ public class FollowServiceImpl implements FollowService {
 	public Boolean hasFollowed(Integer followerId, Integer followingId) {
 		return followRepository.existsById(new FollowId(followerId, followingId));
 	}
-	
-	/*
-	@Override
-	public Integer countFollowings(Integer userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用戶不存在"));
-		return followRepository.countByFollower(user);
-	}
 
-	@Override
-	public Integer countFollowers(Integer userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用戶不存在"));
-		return followRepository.countByFollowing(user);
-	}
-	*/
-	
+	/*
+	 * @Override public Integer countFollowings(Integer userId) { User user =
+	 * userRepository.findById(userId).orElseThrow(() -> new
+	 * RuntimeException("用戶不存在")); return followRepository.countByFollower(user); }
+	 * 
+	 * @Override public Integer countFollowers(Integer userId) { User user =
+	 * userRepository.findById(userId).orElseThrow(() -> new
+	 * RuntimeException("用戶不存在")); return followRepository.countByFollowing(user); }
+	 */
+
 	// 粉絲/追蹤數
 	public Integer countFollows(Integer userId, FollowType type) {
-	    User user = userRepository.findById(userId)
-	        .orElseThrow(() -> new RuntimeException("用戶不存在"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用戶不存在"));
 
-	    return switch (type) {
-	        case FOLLOWERS -> followRepository.countByFollowing(user);
-	        case FOLLOWINGS -> followRepository.countByFollower(user);
-	    };
+		return switch (type) {
+		case FOLLOWERS -> followRepository.countByFollower(user); // 有誰追蹤他 = 粉絲數
+		case FOLLOWINGS -> followRepository.countByFollowing(user); // 他追蹤誰 = 關注數
+		};
 	}
 }

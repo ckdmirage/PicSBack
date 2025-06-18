@@ -28,7 +28,9 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 	@Query("SELECT a FROM Artwork a") // 可以省略，保留方便看
 	List<Artwork> findAllWithTagsUser();
 	
-
+	@EntityGraph(attributePaths = {"user", "tags"})
+	@Query("SELECT a FROM Artwork a WHERE a.id = :id")
+	Optional<Artwork> findWithUserAndTagsById(@Param("id") Integer id);
 
 	
 	//模糊搜索

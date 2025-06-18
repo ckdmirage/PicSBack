@@ -1,4 +1,4 @@
-package com.example.demo.model.dto.follow;
+package com.example.demo.model.dto.followDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

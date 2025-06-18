@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.dto.follow.FollowCountDto;
-import com.example.demo.model.dto.follow.FollowDto;
+import com.example.demo.model.dto.followDto.FollowCountDto;
+import com.example.demo.model.dto.followDto.FollowDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.enums.FollowType;
 import com.example.demo.response.ApiResponse;
@@ -29,19 +29,19 @@ public class FollowController {
 	private FollowService followService;
 
 	@PostMapping("/{targetUserId}")
-	public ResponseEntity<ApiResponse<String>> follow(@RequestAttribute UserCertDto userCertDto,
+	public ResponseEntity<ApiResponse<Boolean>> follow(@RequestAttribute UserCertDto userCertDto,
 			@PathVariable Integer targetUserId) {
 		followService.follow(userCertDto.getUserId(), targetUserId);
-		return ResponseEntity.ok(ApiResponse.success("關注成功", null));
+		return ResponseEntity.ok(ApiResponse.success("關注成功", true));
 	}
 
 	@DeleteMapping("/{targetUserId}")
-	public ResponseEntity<ApiResponse<String>> unfollow(
+	public ResponseEntity<ApiResponse<Boolean>> unfollow(
 	    @RequestAttribute UserCertDto userCertDto,
 	    @PathVariable Integer targetUserId
 	) {
 	    followService.unfollow(userCertDto.getUserId(), targetUserId);
-	    return ResponseEntity.ok(ApiResponse.success("取消關注成功", null));
+	    return ResponseEntity.ok(ApiResponse.success("取消成功", false));
 	}
 	
 	// 確認追蹤

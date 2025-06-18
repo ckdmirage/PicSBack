@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.demo.model.dto.TagDto;
+import com.example.demo.model.dto.userdto.UserDto;
 
 import lombok.Data;
 
@@ -14,8 +15,7 @@ public class ArtworkDisplayDto {
 	private String imageUrl;
 	private LocalDateTime uploaded = LocalDateTime.now();;
 	
-	private Integer authorId;
-	private String authorname;
+	private UserDto author;
 	private List<TagDto> tagDtos;
 	private Integer likes;
 }

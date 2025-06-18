@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,14 +90,13 @@ public class ArtworkServiceImpl implements ArtworkService {
 	// 獲取單個作品
 	@Override
 	public ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId) {
-		Optional<Artwork> optArtwork = artworkRepository.findByIdWithTags(artworkId);
-		Artwork artwork = optArtwork.orElseThrow(() -> new ArtworkException("查無作品!"));
-		User user = artwork.getUser();
-		ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artwork);
-		artworkDisplayDto.setAuthorId(user.getId());
-		artworkDisplayDto.setAuthorname(user.getUsername());
-		artworkDisplayDto.setLikes(likesRepository.countByArtworkId(artworkId));
-		return artworkDisplayDto;
+	    Artwork artwork = artworkRepository.findByIdWithTags(artworkId)
+	        .orElseThrow(() -> new ArtworkException("查無作品!"));
+
+	    ArtworkDisplayDto dto = artworkMapper.toDisplayDto(artwork);
+	    dto.setLikes(likesRepository.countByArtworkId(artworkId));
+
+	    return dto;
 	}
 
 	// 獲取所有作品
@@ -123,7 +123,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 	public List<ArtworkDisplayDto> getArtworkDtosByUserSorted(Integer userId, String sortType) {
 		List<Artwork> artworks = artworkRepository.findByUserId(userId);
 		if (artworks.isEmpty())
-			throw new ArtworkException("查無作品!");
+			return Collections.emptyList();
 
 		return switch (sortType) {
 		case "mostLiked" -> toDtoWithLikesSortedByLikes(artworks);

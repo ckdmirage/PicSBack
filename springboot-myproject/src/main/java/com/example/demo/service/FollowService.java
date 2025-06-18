@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import java.util.List;
 
-import com.example.demo.model.dto.follow.FollowDto;
+import com.example.demo.model.dto.followDto.FollowDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.enums.FollowType;
 
