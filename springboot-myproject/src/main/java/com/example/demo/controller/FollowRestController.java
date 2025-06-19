@@ -19,14 +19,18 @@ import com.example.demo.model.dto.followDto.FollowDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.enums.FollowType;
 import com.example.demo.response.ApiResponse;
+import com.example.demo.service.ArtworkService;
 import com.example.demo.service.FollowService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/follow")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
-public class FollowController {
-	@Autowired
-	private FollowService followService;
+public class FollowRestController {
+
+	private final FollowService followService;
 
 	@PostMapping("/{targetUserId}")
 	public ResponseEntity<ApiResponse<Boolean>> follow(@RequestAttribute UserCertDto userCertDto,

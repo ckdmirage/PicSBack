@@ -67,7 +67,7 @@ public class FollowServiceImpl implements FollowService {
 		return followings.stream().map(follow -> {
 			User u = follow.getFollowing();
 			return new FollowDto(userMapper.toDto(u), follow.getCreatedAt());
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 	// 粉絲
@@ -78,7 +78,7 @@ public class FollowServiceImpl implements FollowService {
 		return followeds.stream().map(follow -> {
 			User u = follow.getFollower();
 			return new FollowDto(userMapper.toDto(u), follow.getCreatedAt());
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 	@Override

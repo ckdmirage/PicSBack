@@ -131,6 +131,6 @@ public class UserServiceImpl implements UserService{
 	//模糊搜索用戶
 	public List<UserDto> searchByKeyword(String keyword){
 		List<User> users = userRepository.findByUsernameContainingIgnoreCase(keyword);
-		return users.stream().map(userMapper::toDto).collect(Collectors.toList());
+		return users.stream().map(userMapper::toDto).toList();
 	}
 }

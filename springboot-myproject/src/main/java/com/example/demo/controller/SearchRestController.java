@@ -18,18 +18,18 @@ import com.example.demo.service.ArtworkService;
 import com.example.demo.service.TagService;
 import com.example.demo.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/search")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
-public class SearchController {
-	@Autowired
-	private UserService userService;
+public class SearchRestController {
+	private final UserService userService;
 
-	@Autowired
-	private ArtworkService artworkService;
+	private final ArtworkService artworkService;
 
-	@Autowired
-	private TagService tagService;
+	private final TagService tagService;
 
 	// 搜尋使用者
 	@GetMapping("/user")
@@ -40,10 +40,14 @@ public class SearchController {
 
 	// 搜尋作品
 	@GetMapping("/artwork")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> searchArtworks(@RequestParam String keyword) {
-		List<ArtworkDisplayDto> artworks = artworkService.searchByTitle(keyword);
-		return ResponseEntity.ok(ApiResponse.success("搜尋成功", artworks));
+	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> searchArtworks(
+	    @RequestParam String keyword,
+	    @RequestParam(defaultValue = "newest") String sort
+	) {
+	    List<ArtworkDisplayDto> artworks = artworkService.searchByTitle(keyword, sort);
+	    return ResponseEntity.ok(ApiResponse.success("搜尋成功", artworks));
 	}
+
 	// 搜尋標籤
 	@GetMapping("/tag")
     public ResponseEntity<ApiResponse<List<TagDto>>> searchTags(@RequestParam String keyword) {

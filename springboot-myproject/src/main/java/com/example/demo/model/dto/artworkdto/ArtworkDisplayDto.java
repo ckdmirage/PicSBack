@@ -13,7 +13,7 @@ public class ArtworkDisplayDto {
 	private Integer id;
 	private String title;
 	private String imageUrl;
-	private LocalDateTime uploaded = LocalDateTime.now();;
+	private LocalDateTime uploaded;
 	
 	private UserDto author;
 	private List<TagDto> tagDtos;

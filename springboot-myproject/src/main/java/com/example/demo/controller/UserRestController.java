@@ -17,16 +17,18 @@ import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
 import com.example.demo.response.ApiResponse;
+import com.example.demo.service.ArtworkService;
 import com.example.demo.service.UserService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class UserRestController {
-	@Autowired
-	private UserService userService;
+	private final UserService userService;
 	
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<UserRegisterDto>> addUser(@Valid @RequestBody UserRegisterDto userRegisterDto) {

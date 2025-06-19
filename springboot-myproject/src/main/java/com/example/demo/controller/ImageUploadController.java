@@ -15,14 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.response.ApiResponse;
+import com.example.demo.service.ArtworkService;
 import com.example.demo.service.FileStorageService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class ImageUploadController {
-	@Autowired
-	private FileStorageService fileStorageService;
+
+	private final FileStorageService fileStorageService;
 	
 	
 	@PostMapping("/upload")

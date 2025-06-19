@@ -22,23 +22,22 @@ import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
 import com.example.demo.model.dto.artworkdto.ArtworkUploadDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
-import com.example.demo.model.entity.Artwork;
 import com.example.demo.model.entity.Tag;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.ArtworkService;
 import com.example.demo.service.TagService;
 
-import jakarta.websocket.server.PathParam;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/artwork")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class ArtworkRestController {
-	@Autowired
-	private ArtworkService artworkService;
 	
-	@Autowired
-	private TagService tagService;
+	private final ArtworkService artworkService;
+	
+	private final TagService tagService;
 	
 	//作品上傳(需要驗證用戶登入的身分)
 	@PostMapping("upload")
@@ -101,7 +100,4 @@ public class ArtworkRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", tagService.searchTags(keyword)));
 	}
 	
-	
-		
-	//
 }

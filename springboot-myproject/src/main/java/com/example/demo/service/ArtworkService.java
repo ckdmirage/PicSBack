@@ -21,5 +21,5 @@ public interface ArtworkService {
 	
 	List<ArtworkDisplayDto> getArtworkDtosByTagSorted(String tagname, String sortType);
 	
-	List<ArtworkDisplayDto> searchByTitle(String keyword);
+	List<ArtworkDisplayDto> searchByTitle(String keyword, String sort);
 }

@@ -107,13 +107,13 @@ public class ArtworkServiceImpl implements ArtworkService {
 		    case "oldest" -> toDtoWithLikes(
 		        artworks.stream()
 		            .sorted(Comparator.comparing(Artwork::getUploaded))
-		            .collect(Collectors.toList())
+		            .toList()
 		    );
 		    case "mostLiked" -> toDtoWithLikesSortedByLikes(artworks);
 		    default -> toDtoWithLikes(
 		        artworks.stream()
 		            .sorted(Comparator.comparing(Artwork::getUploaded).reversed())
-		            .collect(Collectors.toList())
+		            .toList()
 		    );
 		};
 	}
@@ -130,7 +130,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 		case "oldest" -> toDtoWithLikes(artworks.stream().sorted(Comparator.comparing(Artwork::getUploaded))
 				.collect(Collectors.toList()));
 		default -> toDtoWithLikes(artworks.stream()
-				.sorted(Comparator.comparing(Artwork::getUploaded).reversed()).collect(Collectors.toList()));
+				.sorted(Comparator.comparing(Artwork::getUploaded).reversed()).toList());
 		};
 	}
 
@@ -146,7 +146,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 		case "oldest" -> toDtoWithLikes(artworks.stream().sorted(Comparator.comparing(Artwork::getUploaded))
 				.collect(Collectors.toList()));
 		default -> toDtoWithLikes(artworks.stream()
-				.sorted(Comparator.comparing(Artwork::getUploaded).reversed()).collect(Collectors.toList()));
+				.sorted(Comparator.comparing(Artwork::getUploaded).reversed()).toList());
 		};
 	}
 
@@ -166,7 +166,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 			ArtworkDisplayDto dto = artworkMapper.toDisplayDto(artwork);
 			dto.setLikes(likeMap.getOrDefault(artwork.getId(), 0));
 			return dto;
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 	// 控制排序方法
@@ -177,7 +177,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 		// 2. 按 likes 排序（從多到少）
 		return list.stream().sorted(Comparator.comparing(ArtworkDisplayDto::getLikes).reversed())
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	// 刪除作品
@@ -198,10 +198,24 @@ public class ArtworkServiceImpl implements ArtworkService {
 		artworkRepository.delete(artwork);
 	}
 
-	//模糊搜索
 	@Override
-	public List<ArtworkDisplayDto> searchByTitle(String keyword) {
-		List <Artwork> artworks =  artworkRepository.findByTitleContainingIgnoreCase(keyword);
-		 return toDtoWithLikes(artworks);
+	public List<ArtworkDisplayDto> searchByTitle(String keyword, String sort) {
+	    List<Artwork> artworks;
+
+	    switch (sort) {
+	        case "oldest":
+	            artworks = artworkRepository.findByTitleContainingIgnoreCaseOrderByUploadedAsc(keyword);
+	            break;
+	        case "mostLiked":
+	            artworks = artworkRepository.findMostLikedByTitle(keyword);
+	            break;
+	        case "newest":
+	        default:
+	            artworks = artworkRepository.findByTitleContainingIgnoreCaseOrderByUploadedDesc(keyword);
+	            break;
+	    }
+
+	    return toDtoWithLikes(artworks);
 	}
+
 }

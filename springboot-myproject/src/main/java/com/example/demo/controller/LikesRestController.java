@@ -13,19 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.response.ApiResponse;
+import com.example.demo.service.ArtworkService;
 import com.example.demo.service.LikesService;
 import com.example.demo.util.JwtUtil;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/like")
+@RequiredArgsConstructor
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
-public class LikesController {
-	@Autowired
-	private LikesService likesService;
-	@Autowired
-	private JwtUtil jwtUtil;
+public class LikesRestController {
+	private final LikesService likesService;
+
+	private final JwtUtil jwtUtil;
 	
 	//點讚
 	@PostMapping("/{artworkId}")

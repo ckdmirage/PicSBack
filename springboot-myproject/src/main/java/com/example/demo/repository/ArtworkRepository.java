@@ -34,7 +34,17 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer>{
 
 	
 	//模糊搜索
-	@EntityGraph(attributePaths = {"tags", "user"})
-	List<Artwork> findByTitleContainingIgnoreCase(String keyword);
+	List<Artwork> findByTitleContainingIgnoreCaseOrderByUploadedDesc(String keyword);
+	List<Artwork> findByTitleContainingIgnoreCaseOrderByUploadedAsc(String keyword);
+	
+	@Query(value = """
+		    SELECT a.* FROM artwork a
+		    LEFT JOIN likes l ON a.id = l.artwork_id
+		    WHERE LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		    GROUP BY a.id
+		    ORDER BY COUNT(l.artwork_id) DESC
+		""", nativeQuery = true)
+		List<Artwork> findMostLikedByTitle(@Param("keyword") String keyword);
+
 }
 	
