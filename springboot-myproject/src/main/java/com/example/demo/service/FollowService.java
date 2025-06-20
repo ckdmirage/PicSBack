@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.example.demo.model.dto.followDto.FollowDto;
+import com.example.demo.model.dto.followDto.FollowStatusDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.enums.FollowType;
 
@@ -24,9 +26,7 @@ public interface FollowService {
 	Boolean hasFollowed(Integer followerId, Integer followingId);
 
 	// 6. 查詢追蹤/粉絲數
-	//Integer countFollowings(Integer userId);
-
-	//Integer countFollowers(Integer userId);
 	
 	Integer countFollows(Integer userId, FollowType type);
+
 }

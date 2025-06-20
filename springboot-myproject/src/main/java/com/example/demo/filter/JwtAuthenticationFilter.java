@@ -57,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             path.matches("^/follow/follower/\\d+$") ||
             
             // 點讚數
+            path.equals("/like/counts") ||
             path.matches("^/like/count/\\d+$") ||
             
             // 圖片上傳

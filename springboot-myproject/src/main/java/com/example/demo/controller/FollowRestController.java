@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.dto.followDto.FollowCountDto;
 import com.example.demo.model.dto.followDto.FollowDto;
+import com.example.demo.model.dto.followDto.FollowStatusDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.enums.FollowType;
 import com.example.demo.response.ApiResponse;
-import com.example.demo.service.ArtworkService;
 import com.example.demo.service.FollowService;
 
 import lombok.RequiredArgsConstructor;
@@ -93,19 +93,4 @@ public class FollowRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
 	}
 
-	/*
-	 * //追蹤人數
-	 * 
-	 * @GetMapping("/following/count") public ResponseEntity<ApiResponse<Integer>>
-	 * countFollowing(@RequestAttribute UserCertDto userCertDto){ Integer count =
-	 * followService.countFollowings(userCertDto.getUserId()); return
-	 * ResponseEntity.ok(ApiResponse.success("查詢成功", count)); }
-	 * 
-	 * //粉絲數
-	 * 
-	 * @GetMapping("/follower/count") public ResponseEntity<ApiResponse<Integer>>
-	 * countFollower(@RequestAttribute UserCertDto userCertDto){ Integer count =
-	 * followService.countFollowers(userCertDto.getUserId()); return
-	 * ResponseEntity.ok(ApiResponse.success("查詢成功", count)); }
-	 */
 }

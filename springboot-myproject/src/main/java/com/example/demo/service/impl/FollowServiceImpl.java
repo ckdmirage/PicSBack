@@ -2,8 +2,8 @@ package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,6 @@ import com.example.demo.exception.FollowException;
 import com.example.demo.exception.UserNoFoundException;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.dto.followDto.FollowDto;
-import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.entity.Follow;
 import com.example.demo.model.entity.User;
 import com.example.demo.model.entity.serializable.FollowId;
@@ -19,8 +18,6 @@ import com.example.demo.model.enums.FollowType;
 import com.example.demo.repository.FollowRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.FollowService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class FollowServiceImpl implements FollowService {
@@ -61,40 +58,23 @@ public class FollowServiceImpl implements FollowService {
 
 	// 追蹤者
 	@Override
+	@Transactional(readOnly = true)
 	public List<FollowDto> getFollowings(Integer userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNoFoundException("用戶不存在"));
-		List<Follow> followings = followRepository.findByFollower(user);
-		return followings.stream().map(follow -> {
-			User u = follow.getFollowing();
-			return new FollowDto(userMapper.toDto(u), follow.getCreatedAt());
-		}).toList();
-	}
+		return followRepository.fetchFollowingsDto(userId);
+	}	
 
 	// 粉絲
 	@Override
+	@Transactional(readOnly = true)
 	public List<FollowDto> getFollowers(Integer userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNoFoundException("用戶不存在"));
-		List<Follow> followeds = followRepository.findByFollowing(user);
-		return followeds.stream().map(follow -> {
-			User u = follow.getFollower();
-			return new FollowDto(userMapper.toDto(u), follow.getCreatedAt());
-		}).toList();
+		// 不需要查 user 本身了，直接查 DTO
+		return followRepository.fetchFollowersDto(userId);
 	}
 
 	@Override
 	public Boolean hasFollowed(Integer followerId, Integer followingId) {
 		return followRepository.existsById(new FollowId(followerId, followingId));
 	}
-
-	/*
-	 * @Override public Integer countFollowings(Integer userId) { User user =
-	 * userRepository.findById(userId).orElseThrow(() -> new
-	 * RuntimeException("用戶不存在")); return followRepository.countByFollower(user); }
-	 * 
-	 * @Override public Integer countFollowers(Integer userId) { User user =
-	 * userRepository.findById(userId).orElseThrow(() -> new
-	 * RuntimeException("用戶不存在")); return followRepository.countByFollowing(user); }
-	 */
 
 	// 粉絲/追蹤數
 	public Integer countFollows(Integer userId, FollowType type) {
@@ -105,4 +85,5 @@ public class FollowServiceImpl implements FollowService {
 		case FOLLOWINGS -> followRepository.countByFollowing(user); // 他追蹤誰 = 關注數
 		};
 	}
+
 }
