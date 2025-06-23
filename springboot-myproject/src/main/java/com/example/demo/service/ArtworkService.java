@@ -2,24 +2,26 @@ package com.example.demo.service;
 
 import java.util.List;
 
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
+import com.example.demo.model.dto.artworkdto.ArtworkDetailDto;
 import com.example.demo.model.dto.artworkdto.ArtworkUploadDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
-import com.example.demo.model.entity.Artwork;
 
 public interface ArtworkService {
 	
-	ArtworkDisplayDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto);
+	ArtworkDetailDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto, MultipartFile file);
 	
-	ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId);
+	ArtworkDetailDto getArtworkDetailDto(Integer artworkId, Integer currentUserId);
 	
 	void deleteArtwork(Integer artworkId, String token);
 	
-	List<ArtworkDisplayDto> getAllArtworkDtosSorted(String sortType);
+	List<ArtworkCardDto> getAllArtworkDtosSorted(String sortType, Integer viewerId);
 
-	List<ArtworkDisplayDto> getArtworkDtosByUserSorted(Integer userId, String sortType);
+	List<ArtworkCardDto> getArtworkDtosByUserSorted(Integer userId, String sortType, Integer viewerId);
 	
-	List<ArtworkDisplayDto> getArtworkDtosByTagSorted(String tagname, String sortType);
+	List<ArtworkCardDto> getArtworkDtosByTagSorted(String tagname, String sortType, Integer viewerId);
 	
-	List<ArtworkDisplayDto> searchByTitle(String keyword, String sort);
+	List<ArtworkCardDto> searchByTitle(String keyword, String sortType, Integer viewerId) ;
 }

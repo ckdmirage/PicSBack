@@ -2,16 +2,17 @@ package com.example.demo.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.dto.TagDto;
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
+import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
+import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.ArtworkService;
@@ -38,15 +39,18 @@ public class SearchRestController {
 		return ResponseEntity.ok(ApiResponse.success("搜尋成功", users));
 	}
 
-	// 搜尋作品
+	// 🔍 搜尋作品（可選擇排序，支援登入判斷 liked 狀態）
 	@GetMapping("/artwork")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> searchArtworks(
+	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> searchArtworks(
 	    @RequestParam String keyword,
-	    @RequestParam(defaultValue = "newest") String sort
+	    @RequestParam(defaultValue = "newest") String sort,
+	    @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
 	) {
-	    List<ArtworkDisplayDto> artworks = artworkService.searchByTitle(keyword, sort);
+	    Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+	    List<ArtworkCardDto> artworks = artworkService.searchByTitle(keyword, sort, viewerId);
 	    return ResponseEntity.ok(ApiResponse.success("搜尋成功", artworks));
 	}
+
 
 	// 搜尋標籤
 	@GetMapping("/tag")

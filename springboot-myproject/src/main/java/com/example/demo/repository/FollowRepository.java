@@ -22,31 +22,29 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 	@EntityGraph(attributePaths = { "follower" }) // ⚠ 這裡是粉絲
 	List<Follow> findByFollowing(User user);
 
-	int countByFollower(User user);
+	int countByFollowerId(Integer followerId); // 他關注別人
 
-	int countByFollowing(User user);
+	int countByFollowingId(Integer followingId); // 被別人關注
 
 	@Query("""
-			    select new com.example.demo.model.dto.followDto.FollowDto(
-			        new com.example.demo.model.dto.userdto.UserDto(
-			            u.id, u.username, u.email, u.created, u.role
-			        ), f.createdAt
-			    )
-			    from Follow f
-			    join f.follower u
-			    where f.following.id = :userId
+				select new com.example.demo.model.dto.followDto.FollowDto(
+				    u.id, u.username, u.email, u.role, u.created, f.createdAt
+				)
+				from Follow f
+				join f.follower u
+				where f.following.id = :userId
+				order by f.createdAt desc
 			""")
 	List<FollowDto> fetchFollowersDto(@Param("userId") Integer userId);
 
 	@Query("""
-			    select new com.example.demo.model.dto.followDto.FollowDto(
-			        new com.example.demo.model.dto.userdto.UserDto(
-			            u.id, u.username, u.email, u.created, u.role
-			        ), f.createdAt
-			    )
-			    from Follow f
-			    join f.following u
-			    where f.follower.id = :userId
+				select new com.example.demo.model.dto.followDto.FollowDto(
+				    u.id, u.username, u.email, u.role, u.created, f.createdAt
+				)
+				from Follow f
+				join f.following u
+				where f.follower.id = :userId
+				order by f.createdAt desc
 			""")
 	List<FollowDto> fetchFollowingsDto(@Param("userId") Integer userId);
 

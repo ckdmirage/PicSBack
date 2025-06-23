@@ -78,12 +78,11 @@ public class FollowServiceImpl implements FollowService {
 
 	// 粉絲/追蹤數
 	public Integer countFollows(Integer userId, FollowType type) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用戶不存在"));
-
-		return switch (type) {
-		case FOLLOWERS -> followRepository.countByFollower(user); // 有誰追蹤他 = 粉絲數
-		case FOLLOWINGS -> followRepository.countByFollowing(user); // 他追蹤誰 = 關注數
-		};
+	    return switch (type) {
+	        case FOLLOWERS -> followRepository.countByFollowerId(userId);
+	        case FOLLOWINGS -> followRepository.countByFollowingId(userId);
+	    };
 	}
+
 
 }

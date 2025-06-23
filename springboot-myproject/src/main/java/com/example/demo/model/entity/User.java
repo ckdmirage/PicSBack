@@ -47,6 +47,9 @@ public class User {
 	@Column(nullable = false)
 	private String role;  // 'USER' 或 'ADMIN'或"BAN"
 	
+	@Column(name = "avatar_url")
+	private String avatarUrl;
+	
 	//follow功能需求
 	/**/
 	@OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)

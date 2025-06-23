@@ -13,7 +13,7 @@ import com.example.demo.model.entity.serializable.LikeId;
 @Repository
 public interface LikesRepository extends JpaRepository<Likes, LikeId>{
 	//計算點讚
-	int countByArtworkId(Integer artworkId);
+	//int countByArtworkId(Integer artworkId);
 	//該用戶是否點讚
     boolean existsByArtworkIdAndUserId(Integer artworkId, Integer userId);
     //取消點讚
@@ -21,4 +21,14 @@ public interface LikesRepository extends JpaRepository<Likes, LikeId>{
     
     @Query("SELECT l.artworkId, COUNT(l) FROM Likes l WHERE l.artworkId IN :ids GROUP BY l.artworkId")
     List<Object[]> countLikesByArtworkIds(@Param("ids") List<Integer> ids);
+    
+    @Query("""
+    	    select l.artwork.id
+    	    from Likes l
+    	    where l.userId = :userId and l.artwork.id in :artworkIds
+    	""")
+    	List<Integer> findLikedArtworkIds(@Param("userId") Integer userId, @Param("artworkIds") List<Integer> artworkIds);
+
+
+    
 }

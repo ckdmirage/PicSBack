@@ -1,26 +1,30 @@
 package com.example.demo.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.exception.ArtworkException;
 import com.example.demo.exception.UnLoginException;
 import com.example.demo.mapper.ArtworkMapper;
 import com.example.demo.model.dto.TagDto;
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayFlatDto;
+import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
+import com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto;
+import com.example.demo.model.dto.artworkdto.ArtworkDetailDto;
+import com.example.demo.model.dto.artworkdto.ArtworkDetailFlatDto;
+import com.example.demo.model.dto.artworkdto.ArtworkTagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkUploadDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.entity.Artwork;
@@ -37,154 +41,193 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class ArtworkServiceImpl implements ArtworkService {
-    @Autowired
-    private ArtworkRepository artworkRepository;
+	@Autowired
+	private ArtworkRepository artworkRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private TagRepository tagRepository;
+	@Autowired
+	private TagRepository tagRepository;
 
-    @Autowired
-    private LikesRepository likesRepository;
+	@Autowired
+	private LikesRepository likesRepository;
 
-    @Autowired
-    private ArtworkMapper artworkMapper;
+	@Autowired
+	private ArtworkMapper artworkMapper;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+	@Autowired
+	private JwtUtil jwtUtil;
 
-    // ✅ 上傳作品
-    @Override
-    @Transactional
-    public ArtworkDisplayDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto) {
-        User user = userRepository.findById(userCertDto.getUserId())
-                .orElseThrow(() -> new UnLoginException("尚未登入!"));
+	@Override
+	@Transactional
+	public ArtworkDetailDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto, MultipartFile file) {
+	    User user = userRepository.findById(userCertDto.getUserId())
+	            .orElseThrow(() -> new UnLoginException("尚未登入!"));
 
-        Set<Integer> tagIds = new HashSet<>();
-        if (artworkUploadDto.getTagIds() != null && !artworkUploadDto.getTagIds().isEmpty()) {
-            tagIds.addAll(artworkUploadDto.getTagIds());
-        }
-        if (artworkUploadDto.getNewTagnames() != null) {
-            for (String name : artworkUploadDto.getNewTagnames()) {
-                Optional<Tag> optTag = tagRepository.getTag(name);
-                if (optTag.isPresent()) {
-                    tagIds.add(optTag.get().getId());
-                } else {
-                    Tag newTag = new Tag();
-                    newTag.setName(name);
-                    Tag savedTag = tagRepository.save(newTag);
-                    tagIds.add(savedTag.getId());
-                }
-            }
-        }
+	    // ✅ 儲存圖片
+	    String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+	    String localPath = "D:/myprojectImg/" + filename;
+	    String imageUrl = "http://localhost:8081/myprojectImg/artwork/" + filename;
 
-        List<Tag> allTags = tagRepository.findAllById(tagIds);
-        Artwork artwork = new Artwork(null, user, artworkUploadDto.getTitle(), artworkUploadDto.getImageUrl(),
-                artworkUploadDto.getUploaded(), allTags);
-        artwork.setUploaded(LocalDateTime.now());
-        ArtworkDisplayDto artworkDisplayDto = artworkMapper.toDisplayDto(artworkRepository.save(artwork));
-        artworkDisplayDto.setLikes(likesRepository.countByArtworkId(artwork.getId()));
-        return artworkDisplayDto;
-    }
+	    try {
+	        file.transferTo(new File(localPath));
+	    } catch (IOException e) {
+	        throw new RuntimeException("圖片儲存失敗: " + e.getMessage(), e);
+	    }
 
-    // ✅ 查單筆作品詳情
-    @Override
-    public ArtworkDisplayDto getArtworkDisplayDto(Integer artworkId) {
-        ArtworkDisplayFlatDto flat = artworkRepository.findFlatById(artworkId)
-                .orElseThrow(() -> new ArtworkException("查無作品!"));
+	    // ✅ 處理 Tag（你原本的邏輯保留）
+	    Set<Integer> tagIds = new HashSet<>();
+	    if (artworkUploadDto.getTagIds() != null && !artworkUploadDto.getTagIds().isEmpty()) {
+	        tagIds.addAll(artworkUploadDto.getTagIds());
+	    }
+	    if (artworkUploadDto.getNewTagnames() != null) {
+	        for (String name : artworkUploadDto.getNewTagnames()) {
+	            Optional<Tag> optTag = tagRepository.getTag(name);
+	            if (optTag.isPresent()) {
+	                tagIds.add(optTag.get().getId());
+	            } else {
+	                Tag newTag = new Tag();
+	                newTag.setName(name);
+	                Tag savedTag = tagRepository.save(newTag);
+	                tagIds.add(savedTag.getId());
+	            }
+	        }
+	    }
 
-        List<Object[]> tagRows = artworkRepository.findTagTuplesByArtworkIds(List.of(artworkId));
-        List<TagDto> tags = tagRows.stream()
-                .map(row -> new TagDto((Integer) row[1], (String) row[2]))
-                .toList();
+	    List<Tag> allTags = tagRepository.findAllById(tagIds);
 
-        return artworkMapper.toDisplayDto(flat, tags);
-    }
+	    // ✅ 建立 Artwork
+	    Artwork artwork = new Artwork(
+	        null,
+	        user,
+	        artworkUploadDto.getTitle(),
+	        imageUrl,
+	        LocalDateTime.now(),
+	        allTags
+	    );
 
-    // ✅ 查全部作品（支援排序）
-    @Override
-    public List<ArtworkDisplayDto> getAllArtworkDtosSorted(String sortType) {
-        List<ArtworkDisplayFlatDto> flats = switch (sortType) {
-            case "oldest" -> artworkRepository.findAllOrderByOldest();
-            case "mostLiked" -> artworkRepository.findAllOrderByMostLiked();
-            default -> artworkRepository.findAllOrderByNewest();
-        };
-        return toFullDtoList(flats);
-    }
+	    Artwork saved = artworkRepository.save(artwork);
 
-    // ✅ 查作者作品（支援排序）
-    @Override
-    public List<ArtworkDisplayDto> getArtworkDtosByUserSorted(Integer userId, String sortType) {
-        List<ArtworkDisplayFlatDto> flats = switch (sortType) {
-            case "oldest" -> artworkRepository.findByUserIdOrderByOldest(userId);
-            case "mostLiked" -> artworkRepository.findByUserIdOrderByMostLiked(userId);
-            default -> artworkRepository.findByUserIdOrderByNewest(userId);
-        };
-        return toFullDtoList(flats);
-    }
+	    ArtworkDetailFlatDto flat = artworkRepository.findDetailFlatById(saved.getId())
+	    	    .orElseThrow(() -> new ArtworkException("查無作品!"));
 
-    // ✅ 查標籤作品（支援排序）
-    @Override
-    public List<ArtworkDisplayDto> getArtworkDtosByTagSorted(String tagname, String sortType) {
-        List<ArtworkDisplayFlatDto> flats = switch (sortType) {
-            case "oldest" -> artworkRepository.findByTagNameOrderByOldest(tagname);
-            case "mostLiked" -> artworkRepository.findByTagNameOrderByMostLiked(tagname);
-            default -> artworkRepository.findByTagNameOrderByNewest(tagname);
-        };
-        if (flats.isEmpty()) throw new ArtworkException("查無作品!");
-        return toFullDtoList(flats);
-    }
+	    List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(List.of(saved.getId()));
+	    List<TagDto> tags = tagTuples.stream().map(t -> new TagDto(t.tagId(), t.tagName())).toList();
 
-    // ✅ 模糊搜尋（支援排序）
-    @Override
-    public List<ArtworkDisplayDto> searchByTitle(String keyword, String sort) {
-        List<ArtworkDisplayFlatDto> flats = switch (sort) {
-            case "oldest" -> artworkRepository.searchByTitleOldest(keyword);
-            case "mostLiked" -> artworkRepository.searchByTitleMostLiked(keyword);
-            default -> artworkRepository.searchByTitleNewest(keyword);
-        };
-        return toFullDtoList(flats);
-    }
+	    return artworkMapper.toDetailDto(flat, tags,false);
+	}
 
-    // ✅ 刪除作品
-    @Override
-    @Transactional
-    public void deleteArtwork(Integer artworkId, String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        User user = userRepository.findById(jwtUtil.extractUserId(token))
-                .orElseThrow(() -> new UnLoginException("用戶未登入!"));
 
-        Artwork artwork = artworkRepository.findById(artworkId)
-                .orElseThrow(() -> new ArtworkException("作品不存在!"));
+	// ✅ 查單筆作品詳情
+	@Override
+	public ArtworkDetailDto getArtworkDetailDto(Integer artworkId, Integer currentUserId) {
+	    ArtworkDetailFlatDto flat = artworkRepository.findDetailFlatById(artworkId)
+	            .orElseThrow(() -> new ArtworkException("查無作品!"));
 
-        if (!artwork.getUser().getId().equals(user.getId())) {
-            throw new ArtworkException("無法刪除他人的作品");
-        }
-        artworkRepository.delete(artwork);
-    }
+	    List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(List.of(artworkId));
+	    List<TagDto> tags = tagTuples.stream().map(t -> new TagDto(t.tagId(), t.tagName())).toList();
 
-    // ✅ 將扁平 DTO 組成完整 DTO（含作者、tag、likes）
-    private List<ArtworkDisplayDto> toFullDtoList(List<ArtworkDisplayFlatDto> flatDtos) {
-        if (flatDtos.isEmpty()) return List.of();
+	    boolean liked = currentUserId != null && likesRepository.existsByArtworkIdAndUserId(artworkId, currentUserId);
 
-        List<Integer> ids = flatDtos.stream().map(ArtworkDisplayFlatDto::artworkId).toList();
-        List<Object[]> tagRows = artworkRepository.findTagTuplesByArtworkIds(ids);
+	    return artworkMapper.toDetailDto(flat, tags, liked);
+	}
 
-        Map<Integer, List<TagDto>> tagMap = new HashMap<>();
-        for (Object[] row : tagRows) {
-            Integer artworkId = (Integer) row[0];
-            Integer tagId = (Integer) row[1];
-            String tagName = (String) row[2];
-            tagMap.computeIfAbsent(artworkId, k -> new ArrayList<>())
-                  .add(new TagDto(tagId, tagName));
-        }
 
-        return flatDtos.stream().map(flat ->
-                artworkMapper.toDisplayDto(flat, tagMap.getOrDefault(flat.artworkId(), List.of()))
-        ).toList();
-    }
+	// ✅ 查全部作品（支援排序）
+	@Override
+	public List<ArtworkCardDto> getAllArtworkDtosSorted(String sortType, Integer viewerId) {
+	    List<ArtworkCardFlatDto> flats = switch (sortType) {
+	        case "oldest" -> artworkRepository.findAllOrderByOldest();
+	        case "mostLiked" -> artworkRepository.findAllOrderByMostLiked();
+	        default -> artworkRepository.findAllOrderByNewest();
+	    };
+	    return toFullDtoList(flats, viewerId); // ✅ 統一帶 viewerId（可為 null）
+	}
+
+	// ✅ 查作者作品（支援排序）
+	@Override
+	public List<ArtworkCardDto> getArtworkDtosByUserSorted(Integer userId, String sortType, Integer viewerId) {
+	    List<ArtworkCardFlatDto> flats = switch (sortType) {
+	        case "oldest" -> artworkRepository.findByUserIdOrderByOldest(userId);
+	        case "mostLiked" -> artworkRepository.findByUserIdOrderByMostLiked(userId);
+	        default -> artworkRepository.findByUserIdOrderByNewest(userId);
+	    };
+	    return toFullDtoList(flats, viewerId);
+	}
+
+	// ✅ 查標籤作品（支援排序）
+	@Override
+	public List<ArtworkCardDto> getArtworkDtosByTagSorted(String tagname, String sortType, Integer viewerId) {
+	    List<ArtworkCardFlatDto> flats = switch (sortType) {
+	        case "oldest" -> artworkRepository.findByTagNameOrderByOldest(tagname);
+	        case "mostLiked" -> artworkRepository.findByTagNameOrderByMostLiked(tagname);
+	        default -> artworkRepository.findByTagNameOrderByNewest(tagname);
+	    };
+	    if (flats.isEmpty())
+	        throw new ArtworkException("查無作品!");
+	    return toFullDtoList(flats, viewerId);
+	}
+
+	// ✅ 模糊搜尋（支援排序）
+	@Override
+	public List<ArtworkCardDto> searchByTitle(String keyword, String sortType, Integer viewerId) {
+	    List<ArtworkCardFlatDto> flats = switch (sortType) {
+	        case "oldest" -> artworkRepository.searchByTitleOldest(keyword);
+	        case "mostLiked" -> artworkRepository.searchByTitleMostLiked(keyword);
+	        default -> artworkRepository.searchByTitleNewest(keyword);
+	    };
+	    return toFullDtoList(flats, viewerId);
+	}
+
+	// ✅ 刪除作品
+	@Override
+	@Transactional
+	public void deleteArtwork(Integer artworkId, String token) {
+		if (token.startsWith("Bearer ")) {
+			token = token.substring(7);
+		}
+		User user = userRepository.findById(jwtUtil.extractUserId(token))
+				.orElseThrow(() -> new UnLoginException("用戶未登入!"));
+
+		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(() -> new ArtworkException("作品不存在!"));
+
+		if (!artwork.getUser().getId().equals(user.getId())) {
+			throw new ArtworkException("無法刪除他人的作品");
+		}
+		artworkRepository.delete(artwork);
+	}
+
+	// ✅ 將扁平 DTO 組成完整 DTO（含作者、tag、likes）
+	private List<ArtworkCardDto> toFullDtoList(List<ArtworkCardFlatDto> flatDtos, Integer currentUserId) {
+		if (flatDtos.isEmpty())
+			return List.of();
+		List<Integer> artworkIds = flatDtos.stream().map(ArtworkCardFlatDto::artworkId).toList();
+		Set<Integer> likedArtworkIds = currentUserId == null || flatDtos.isEmpty()
+			    ? Set.of()
+			    : new HashSet<>(likesRepository.findLikedArtworkIds(currentUserId, artworkIds));
+		
+
+		List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(artworkIds);
+
+		// artworkId -> List<TagDto>
+		Map<Integer, List<TagDto>> tagMap = new HashMap<>();
+		for (ArtworkTagDto tuple : tagTuples) {
+			Integer artworkId = tuple.artworkId();
+			Integer tagId = tuple.tagId();
+			String tagName = tuple.tagName();
+
+			tagMap.computeIfAbsent(artworkId, k -> new ArrayList<>()).add(new TagDto(tagId, tagName));
+		}
+
+		return flatDtos.stream()
+			    .map(flat -> artworkMapper.toDisplayDto(
+			        flat,
+			        tagMap.getOrDefault(flat.artworkId(), List.of()),
+			        flat.likes() != null ? flat.likes().intValue() : 0,
+			        likedArtworkIds.contains(flat.artworkId())  // ✅ 新增這個判斷
+			    ))
+			    .toList();
+	}
+
 }

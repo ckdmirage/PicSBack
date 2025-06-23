@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.exception.TagException;
-import com.example.demo.exception.UnLoginException;
 import com.example.demo.model.dto.TagDto;
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
+import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
+import com.example.demo.model.dto.artworkdto.ArtworkDetailDto;
 import com.example.demo.model.dto.artworkdto.ArtworkUploadDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.entity.Tag;
@@ -40,44 +41,58 @@ public class ArtworkRestController {
 	private final TagService tagService;
 	
 	//作品上傳(需要驗證用戶登入的身分)
-	@PostMapping("upload")
-	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> uploadArtwork(@RequestBody ArtworkUploadDto artworkUploadDto,
-			@RequestAttribute UserCertDto userCertDto) throws UnLoginException {
-		ArtworkDisplayDto artworkDisplayDto =  artworkService.uploadArtwork(userCertDto, artworkUploadDto);
-		return ResponseEntity.ok(ApiResponse.success("上傳成功!", artworkDisplayDto));
+	@PostMapping("/upload")
+	public ResponseEntity<ApiResponse<ArtworkDetailDto>> uploadArtwork(
+	    @RequestPart("artwork") ArtworkUploadDto artworkUploadDto,
+	    @RequestPart("file") MultipartFile file,
+	    @RequestAttribute UserCertDto userCertDto
+	) {
+	    ArtworkDetailDto dto = artworkService.uploadArtwork(userCertDto, artworkUploadDto, file);
+	    return ResponseEntity.ok(ApiResponse.success("上傳成功!", dto));
 	}
+
 	
 	//瀏覽作品
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<ArtworkDisplayDto>> artworkDisplay(@PathVariable Integer id){
-		ArtworkDisplayDto artworkDisplayDto = artworkService.getArtworkDisplayDto(id);
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkDisplayDto));
+	public ResponseEntity<ApiResponse<ArtworkDetailDto>> artworkDisplay(
+	    @PathVariable Integer id,
+	    @RequestAttribute(value = "userCertDto", required = false) UserCertDto userCertDto
+	) {
+	    Integer currentUserId = userCertDto != null ? userCertDto.getUserId() : null;
+	    ArtworkDetailDto dto = artworkService.getArtworkDetailDto(id, currentUserId);
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", dto));
 	}
 	
 	//獲取所有作品(主頁)
 	@GetMapping
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getAllSorted(
-	    @RequestParam(defaultValue = "newest") String sort
+	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getAllSorted(
+	    @RequestParam(defaultValue = "newest") String sort,
+	    @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
 	) {
-	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getAllArtworkDtosSorted(sort)));
+	    Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getAllArtworkDtosSorted(sort, viewerId)));
 	}
 	
 	//根據作者顯示作品
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getByUserSorted(
+	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getByUserSorted(
 	    @PathVariable Integer userId,
-	    @RequestParam(defaultValue = "newest") String sort
+	    @RequestParam(defaultValue = "newest") String sort,
+	    @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
 	) {
-	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUserSorted(userId, sort)));
+	    Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUserSorted(userId, sort, viewerId)));
 	}
 	
 	//根據標籤顯示作品
 	@GetMapping("/tag/{tagname}")
-	public ResponseEntity<ApiResponse<List<ArtworkDisplayDto>>> getByTagSorted(
+	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getByTagSorted(
 	    @PathVariable String tagname,
-	    @RequestParam(defaultValue = "newest") String sort
+	    @RequestParam(defaultValue = "newest") String sort,
+	    @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
 	) {
-	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTagSorted(tagname, sort)));
+	    Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+	    return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTagSorted(tagname, sort, viewerId)));
 	}
 	
 	//刪除作品

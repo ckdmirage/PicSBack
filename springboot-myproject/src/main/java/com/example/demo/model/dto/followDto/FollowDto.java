@@ -9,9 +9,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class FollowDto {
-	private UserDto userDto;
-    private LocalDateTime followedAt;
+	private Integer userId;
+	private String username;
+	private String email;
+	private String role;
+	private LocalDateTime created;
+	private LocalDateTime followedAt;
 }

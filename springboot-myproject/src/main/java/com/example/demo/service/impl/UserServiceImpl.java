@@ -83,9 +83,11 @@ public class UserServiceImpl implements UserService{
 		String passwordHash = passwordEncoder.encode(userRegisterDto.getPassword());
 
 		User user = new User(null, userRegisterDto.getUsername(), userRegisterDto.getEmail(), passwordHash, false,
-				userRegisterDto.getCreated(), userRegisterDto.getRole(), new ArrayList<>(), new ArrayList<>());
+				userRegisterDto.getCreated(), userRegisterDto.getRole(), null, new ArrayList<>(), new ArrayList<>());
 		return userRepository.save(user); // 這樣就含有id了
 	}
+	
+	
 	// 子方法token驗證與發送
 	private void createAndSendVerificationToken(User user) {
 		String token = UUID.randomUUID().toString();

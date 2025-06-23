@@ -49,11 +49,11 @@ public class LikesRestController {
 	}
 
 	// 查詢點讚數
-	@GetMapping("/count/{artworkId}")
-	public ResponseEntity<ApiResponse<Integer>> countLike(@PathVariable Integer artworkId) {
-		Integer count = likesService.getLikeCount(artworkId);
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", count));
-	}
+	//@GetMapping("/count/{artworkId}")
+	//public ResponseEntity<ApiResponse<Integer>> countLike(@PathVariable Integer artworkId) {
+	//	Integer count = likesService.getLikeCount(artworkId);
+	//	return ResponseEntity.ok(ApiResponse.success("查詢成功", count));
+	//}
 
 	// 判斷是否點讚(前端渲染用)
 	@GetMapping("/hasLiked/{artworkId}")

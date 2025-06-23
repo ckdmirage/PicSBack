@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.dto.artworkdto.ArtworkDisplayDto;
+import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
+import com.example.demo.response.ApiResponse;
 import com.example.demo.service.FavouriteService;
 
 import lombok.RequiredArgsConstructor;
@@ -55,12 +57,13 @@ public class FavouriteRestController {
 
     // 取得收藏清單
     @GetMapping("/my")
-    public ResponseEntity<List<ArtworkDisplayDto>> getMyFavourites(
-            @RequestAttribute UserCertDto userCertDto) {
+    public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getMyFavourites(
+            @RequestAttribute UserCertDto userCertDto,
+            @RequestParam(defaultValue = "newest") String sort
+    ) {
         Integer userId = userCertDto.getUserId();
-        List<ArtworkDisplayDto> result = favouriteService.getMyFavourites(userId);
-        return ResponseEntity.ok(result);
+        List<ArtworkCardDto> result = favouriteService.getMyFavourites(userId, sort);
+        return ResponseEntity.ok(ApiResponse.success("我的收藏", result));
     }
-	
-	
+
 }
