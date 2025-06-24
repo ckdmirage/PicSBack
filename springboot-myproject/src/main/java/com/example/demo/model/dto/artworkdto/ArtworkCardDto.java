@@ -21,7 +21,7 @@ public class ArtworkCardDto {
 	
 	private UserBriefDto author;
 	private List<TagDto> tagDtos;
-	private Integer likes;
+	private Long likes;
 	
 	private boolean likedByCurrentUser;
 }

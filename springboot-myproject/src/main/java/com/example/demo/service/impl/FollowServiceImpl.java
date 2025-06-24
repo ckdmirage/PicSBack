@@ -28,9 +28,7 @@ public class FollowServiceImpl implements FollowService {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private UserMapper userMapper;
-
+	//新增
 	@Override
 	@Transactional
 	public void follow(Integer followerId, Integer followingId) {
@@ -47,6 +45,7 @@ public class FollowServiceImpl implements FollowService {
 		followRepository.save(follow);
 	}
 
+	//關閉
 	@Override
 	@Transactional
 	public void unfollow(Integer followerId, Integer followingId) {
@@ -67,10 +66,10 @@ public class FollowServiceImpl implements FollowService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<FollowDto> getFollowers(Integer userId) {
-		// 不需要查 user 本身了，直接查 DTO
 		return followRepository.fetchFollowersDto(userId);
 	}
 
+	// 檢查是否追蹤
 	@Override
 	public Boolean hasFollowed(Integer followerId, Integer followingId) {
 		return followRepository.existsById(new FollowId(followerId, followingId));

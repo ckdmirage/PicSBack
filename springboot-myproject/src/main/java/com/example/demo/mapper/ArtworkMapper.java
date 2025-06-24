@@ -2,7 +2,7 @@ package com.example.demo.mapper;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
 import com.example.demo.model.dto.TagDto;
@@ -17,12 +17,6 @@ import com.example.demo.model.dto.userdto.UserDto;
 @Component
 public class ArtworkMapper {
 
-	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
-	private TagMapper tagMapper;
-
 	// 列表頁用：FlatDto + tags → DisplayDto（手動補 likes 與 author）
 	public ArtworkCardDto toDisplayDto(ArtworkCardFlatDto flat, List<TagDto> tags) {
 		ArtworkCardDto dto = new ArtworkCardDto();
@@ -35,34 +29,32 @@ public class ArtworkMapper {
 		UserBriefDto authorDto = new UserBriefDto(flat.authorId(), flat.authorName());
 		dto.setAuthor(authorDto);
 
-		dto.setLikes(flat.likes().intValue());
+		dto.setLikes(flat.likes());
 		dto.setTagDtos(tags);
 
 		return dto;
 	}
 
-	public ArtworkCardDto toDisplayDto(FavouriteFlatDto flat, List<TagDto> tags) {
-		ArtworkCardFlatDto artworkFlat = flat.artwork();
+	public ArtworkCardDto toCardDto(FavouriteFlatDto flat, List<TagDto> tags) {
+	    ArtworkCardDto dto = new ArtworkCardDto();
+	    dto.setId(flat.artworkId());
+	    dto.setTitle(flat.title());
+	    dto.setImageUrl(flat.imageUrl());
+	    dto.setUploaded(flat.uploaded());
 
-		ArtworkCardDto dto = new ArtworkCardDto();
-		dto.setId(artworkFlat.artworkId());
-		dto.setTitle(artworkFlat.title());
-		dto.setImageUrl(artworkFlat.imageUrl());
-		dto.setUploaded(artworkFlat.uploaded());
+	    UserBriefDto authorDto = new UserBriefDto(flat.authorId(), flat.authorName());
+	    dto.setAuthor(authorDto);
 
-		// ✅ 改為使用 UserBriefDto
-		UserBriefDto authorDto = new UserBriefDto(artworkFlat.authorId(), artworkFlat.authorName());
-		dto.setAuthor(authorDto);
+	    dto.setLikes(flat.likes() != null ? flat.likes() : 0);
+	    dto.setTagDtos(tags);
 
-		dto.setLikes(artworkFlat.likes() != null ? artworkFlat.likes().intValue() : 0);
-		dto.setTagDtos(tags);
-
-		return dto;
+	    return dto;
 	}
 
 
 
-	public ArtworkCardDto toDisplayDto(ArtworkCardFlatDto flat, List<TagDto> tags, int likes,
+
+	public ArtworkCardDto toCardDto(ArtworkCardFlatDto flat, List<TagDto> tags, long likes,
 			boolean likedByCurrentUser) {
 		// ✅ 改為 UserBriefDto
 		UserBriefDto author = new UserBriefDto(flat.authorId(), flat.authorName());
@@ -72,25 +64,30 @@ public class ArtworkMapper {
 	}
 	
 	public ArtworkDetailDto toDetailDto(ArtworkDetailFlatDto flat, List<TagDto> tags, boolean liked) {
+	    // ✅ 建立作者 UserDto（不會 N+1，因為都是 flat 來的）
+	    UserDto author = new UserDto(
+	        flat.authorId(),
+	        flat.authorName(),
+	        flat.authorEmail(),
+	        flat.authorCreated(),    // 注意欄位名稱一致
+	        flat.authorAvatarUrl()
+	    );
+
 	    ArtworkDetailDto dto = new ArtworkDetailDto();
 	    dto.setId(flat.artworkId());
 	    dto.setTitle(flat.title());
 	    dto.setImageUrl(flat.imageUrl());
 	    dto.setUploaded(flat.uploaded());
 
-	    // ✅ 這裡用攤平欄位，避免 N+1 問題
-	    dto.setAuthorId(flat.authorId());
-	    dto.setAuthorName(flat.authorName());
-	    dto.setAuthorEmail(flat.authorEmail());
-	    dto.setAuthorAvatarUrl(flat.authorAvatarUrl());
-	    dto.setAuthorRegisted(flat.authorRegisted());
+	    dto.setAuthor(author); // ✅ 用 UserDto 替代原本 authorId、authorName...
 
 	    dto.setTagDtos(tags);
-	    dto.setLikes(flat.likes() != null ? flat.likes().intValue() : 0);
+	    dto.setLikes(flat.likes() != null ? flat.likes() : 0);
 	    dto.setLikedByCurrentUser(liked);
 
 	    return dto;
 	}
+
 
 
 }

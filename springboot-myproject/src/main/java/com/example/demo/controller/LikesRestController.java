@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.LikesService;
-import com.example.demo.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,8 +26,6 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class LikesRestController {
 	private final LikesService likesService;
-
-	private final JwtUtil jwtUtil;
 
 	// 點讚
 	@PostMapping("/{artworkId}")
@@ -72,6 +69,5 @@ public class LikesRestController {
 	    return ResponseEntity.ok(ApiResponse.success("批次查詢成功", countMap));
 	}
 	
-	// 批量查詢是否點讚
 
 }

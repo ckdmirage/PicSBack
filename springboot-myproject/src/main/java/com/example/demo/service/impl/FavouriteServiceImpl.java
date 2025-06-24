@@ -19,7 +19,6 @@ import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
 import com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto;
 import com.example.demo.model.dto.artworkdto.ArtworkTagDto;
-import com.example.demo.model.dto.favouriteDto.FavouriteFlatDto;
 import com.example.demo.model.entity.Artwork;
 import com.example.demo.model.entity.Favourite;
 import com.example.demo.model.entity.User;

@@ -15,24 +15,22 @@ import com.example.demo.model.entity.Artwork;
 
 @Repository
 public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
-	
-	
-	
+
 	// 查詢單筆作品
 	@Query("""
-		    SELECT new com.example.demo.model.dto.artworkdto.ArtworkDetailFlatDto(
-		        a.id, a.title, a.imageUrl, a.uploaded,
-		        u.id, u.username, u.avatarUrl,
-		        COUNT(l)
-		    )
-		    FROM Artwork a
-		    JOIN a.user u
-		    LEFT JOIN Likes l ON l.artwork.id = a.id
-		    WHERE a.id = :artworkId
-		    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username, u.avatarUrl
-		""")
-		Optional<ArtworkDetailFlatDto> findDetailFlatById(@Param("artworkId") Integer artworkId);
-
+			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkDetailFlatDto(
+			        a.id, a.title, a.imageUrl, a.uploaded,
+			        u.id, u.username, u.email, u.avatarUrl, u.created,
+			        COUNT(l)
+			    )
+			    FROM Artwork a
+			    JOIN a.user u
+			    LEFT JOIN Likes l ON l.artwork.id = a.id
+			    WHERE a.id = :artworkId
+			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded,
+			             u.id, u.username, u.email, u.avatarUrl, u.created
+			""")
+	Optional<ArtworkDetailFlatDto> findDetailFlatById(@Param("artworkId") Integer artworkId);
 
 	// 查詢所有作品：從新到舊
 	@Query("""
@@ -214,7 +212,6 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			""")
 	List<ArtworkCardFlatDto> searchByTitleMostLiked(@Param("keyword") String keyword);
 
-
 	// 一次查所有作品對應的 tag 資訊
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkTagDto(a.id, t.id, t.name)
@@ -225,17 +222,16 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 	List<ArtworkTagDto> findTagTuplesByArtworkIds(@Param("artworkIds") List<Integer> artworkIds);
 
 	@Query("""
-		    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-		        a.id, a.title, a.imageUrl, a.uploaded,
-		        u.id, u.username, COUNT(l)
-		    )
-		    FROM Artwork a
-		    JOIN a.user u
-		    LEFT JOIN Likes l ON l.artwork.id = a.id
-		    WHERE a.id IN :artworkIds
-		    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-		""")
-		List<ArtworkCardFlatDto> findCardFlatDtoByIds(@Param("artworkIds") List<Integer> artworkIds);
-
+			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
+			        a.id, a.title, a.imageUrl, a.uploaded,
+			        u.id, u.username, COUNT(l)
+			    )
+			    FROM Artwork a
+			    JOIN a.user u
+			    LEFT JOIN Likes l ON l.artwork.id = a.id
+			    WHERE a.id IN :artworkIds
+			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
+			""")
+	List<ArtworkCardFlatDto> findCardFlatDtoByIds(@Param("artworkIds") List<Integer> artworkIds);
 
 }

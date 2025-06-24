@@ -12,8 +12,10 @@ import com.example.demo.model.entity.serializable.LikeId;
 
 @Repository
 public interface LikesRepository extends JpaRepository<Likes, LikeId>{
+	
 	//計算點讚
 	//int countByArtworkId(Integer artworkId);
+	
 	//該用戶是否點讚
     boolean existsByArtworkIdAndUserId(Integer artworkId, Integer userId);
     //取消點讚

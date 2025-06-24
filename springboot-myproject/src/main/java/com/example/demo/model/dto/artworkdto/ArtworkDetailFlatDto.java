@@ -11,7 +11,7 @@ public record ArtworkDetailFlatDto(
 	    Integer authorId,
 	    String authorName,
 	    String authorEmail,
-	    String authorAvatarUrl, // ✅ 作者頭像（主頁才需要）
-	    LocalDateTime authorRegisted,
-	    Long likes // ✅ 總點讚數
+	    String authorAvatarUrl, 
+	    LocalDateTime authorCreated,
+	    Long likes 
 	) {}

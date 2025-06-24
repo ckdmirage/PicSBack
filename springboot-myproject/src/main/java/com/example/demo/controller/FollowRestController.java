@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.dto.followDto.FollowCountDto;
 import com.example.demo.model.dto.followDto.FollowDto;
-import com.example.demo.model.dto.followDto.FollowStatusDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.enums.FollowType;
 import com.example.demo.response.ApiResponse;
@@ -32,6 +30,7 @@ public class FollowRestController {
 
 	private final FollowService followService;
 
+	// 追蹤
 	@PostMapping("/{targetUserId}")
 	public ResponseEntity<ApiResponse<Boolean>> follow(@RequestAttribute UserCertDto userCertDto,
 			@PathVariable Integer targetUserId) {
@@ -39,6 +38,7 @@ public class FollowRestController {
 		return ResponseEntity.ok(ApiResponse.success("關注成功", true));
 	}
 
+	// 取消追蹤
 	@DeleteMapping("/{targetUserId}")
 	public ResponseEntity<ApiResponse<Boolean>> unfollow(
 	    @RequestAttribute UserCertDto userCertDto,
@@ -48,7 +48,7 @@ public class FollowRestController {
 	    return ResponseEntity.ok(ApiResponse.success("取消成功", false));
 	}
 	
-	// 確認追蹤
+	// 確認追蹤(前端渲染)
 	@GetMapping("/hasfollowed")
 	public ResponseEntity<ApiResponse<Boolean>> hasFollowed(@RequestAttribute UserCertDto userCertDto,
 			@RequestParam Integer followingId) {

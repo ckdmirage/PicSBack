@@ -2,7 +2,6 @@ package com.example.demo.model.dto.followDto;
 
 import java.time.LocalDateTime;
 
-import com.example.demo.model.dto.userdto.UserDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

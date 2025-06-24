@@ -16,15 +16,15 @@ import com.example.demo.model.entity.serializable.FollowId;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 
-	@EntityGraph(attributePaths = { "following" }) // ⚠ 這裡是關注的對象
+	@EntityGraph(attributePaths = { "following" }) // 追蹤對象
 	List<Follow> findByFollower(User user);
 
-	@EntityGraph(attributePaths = { "follower" }) // ⚠ 這裡是粉絲
+	@EntityGraph(attributePaths = { "follower" }) // 粉絲
 	List<Follow> findByFollowing(User user);
 
-	int countByFollowerId(Integer followerId); // 他關注別人
+	int countByFollowerId(Integer followerId); // 追蹤別人
 
-	int countByFollowingId(Integer followingId); // 被別人關注
+	int countByFollowingId(Integer followingId); // 被追蹤
 
 	@Query("""
 				select new com.example.demo.model.dto.followDto.FollowDto(

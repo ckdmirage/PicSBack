@@ -15,7 +15,7 @@ public interface ArtworkService {
 	
 	ArtworkDetailDto getArtworkDetailDto(Integer artworkId, Integer currentUserId);
 	
-	void deleteArtwork(Integer artworkId, String token);
+	void deleteArtwork(Integer artworkId, UserCertDto userCert);
 	
 	List<ArtworkCardDto> getAllArtworkDtosSorted(String sortType, Integer viewerId);
 

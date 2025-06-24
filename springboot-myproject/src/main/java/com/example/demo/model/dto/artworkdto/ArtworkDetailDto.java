@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.demo.model.dto.TagDto;
-import com.example.demo.model.dto.userdto.UserBriefDto;
+import com.example.demo.model.dto.userdto.UserDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,14 +19,10 @@ public class ArtworkDetailDto {
 	private String imageUrl;
 	private LocalDateTime uploaded;
 
-	private Integer authorId;
-	private String authorName;
-	private String authorAvatarUrl;
-	private String authorEmail;
-	private LocalDateTime authorRegisted;
+	private UserDto author;
 	
 	private List<TagDto> tagDtos;
-	private Integer likes;
+	private Long likes;
 
 	private boolean likedByCurrentUser;
 }

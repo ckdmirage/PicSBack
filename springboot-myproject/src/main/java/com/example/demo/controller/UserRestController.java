@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
 import com.example.demo.response.ApiResponse;
-import com.example.demo.service.ArtworkService;
 import com.example.demo.service.UserService;
 
 import jakarta.validation.Valid;
@@ -29,36 +27,38 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:8002" }, allowCredentials = "true")
 public class UserRestController {
 	private final UserService userService;
-	
+
+	// 註冊
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<UserRegisterDto>> addUser(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-	    userService.addUser(userRegisterDto);
-	    return ResponseEntity.ok(ApiResponse.success("新增成功", userRegisterDto));
+		userService.addUser(userRegisterDto);
+		return ResponseEntity.ok(ApiResponse.success("新增成功", userRegisterDto));
 	}
 
-	
+	// 登入
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse<UserCertDto>> login(@Valid @RequestBody UserLoginDto userLoginDto) throws UserException {
-	    UserCertDto userCertDto = userService.login(userLoginDto);
-	    return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
+	public ResponseEntity<ApiResponse<UserCertDto>> login(@Valid @RequestBody UserLoginDto userLoginDto)
+			throws UserException {
+		UserCertDto userCertDto = userService.login(userLoginDto);
+		return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
 	}
-	
-	//郵箱驗證
+
+	// 郵箱驗證
 	@GetMapping("/verify")
-	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token){
+	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token) {
 		boolean isVerified = userService.verifyUserToken(token);
 		if (isVerified) {
-	        return ResponseEntity.ok(ApiResponse.success("驗證成功", null));
-	    } else {
-	        return ResponseEntity.badRequest().body(ApiResponse.error(400, "驗證失敗或連結過期"));
-	    }
+			return ResponseEntity.ok(ApiResponse.success("驗證成功", null));
+		} else {
+			return ResponseEntity.badRequest().body(ApiResponse.error(400, "驗證失敗或連結過期"));
+		}
 	}
-	
-	//個人主頁
+
+	// 個人主頁
 	@GetMapping("/homepage/{id}")
-	public ResponseEntity<ApiResponse<UserDto>> userPage(@PathVariable Integer id){
+	public ResponseEntity<ApiResponse<UserDto>> userPage(@PathVariable Integer id) {
 		UserDto userDto = userService.getUserDto(id);
 		return ResponseEntity.ok(ApiResponse.success("讀取成功", userDto));
 	}
-	
+
 }

@@ -32,14 +32,14 @@ public class SearchRestController {
 
 	private final TagService tagService;
 
-	// 搜尋使用者
+	// 搜尋用戶
 	@GetMapping("/user")
 	public ResponseEntity<ApiResponse<List<UserDto>>> searchUsers(@RequestParam String keyword) {
 		List<UserDto> users = userService.searchByKeyword(keyword);
 		return ResponseEntity.ok(ApiResponse.success("搜尋成功", users));
 	}
 
-	// 🔍 搜尋作品（可選擇排序，支援登入判斷 liked 狀態）
+	// 搜尋作品（可排序 可驗證身分）
 	@GetMapping("/artwork")
 	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> searchArtworks(
 	    @RequestParam String keyword,

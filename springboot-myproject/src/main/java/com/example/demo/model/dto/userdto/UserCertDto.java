@@ -9,12 +9,12 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserCertDto {
-	
+
 	private Integer userId;
-	
+
 	private String username;
-	
+
 	private String role;
-	
-	private String token;//上傳作品需要
+
+	private String token; // 上傳作品需要
 }

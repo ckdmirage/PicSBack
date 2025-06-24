@@ -27,43 +27,40 @@ import lombok.RequiredArgsConstructor;
 public class FavouriteRestController {
 
 	public final FavouriteService favouriteService;
-	
+
 	// 收藏作品
-    @PostMapping("/{artworkId}")
-    public ResponseEntity<?> addFavourite(@PathVariable Integer artworkId,
-                                          @RequestAttribute UserCertDto userCertDto) {
-        Integer userId = userCertDto.getUserId(); 
-        favouriteService.addFavourite(userId, artworkId);
-        return ResponseEntity.ok("收藏成功");
-    }
+	@PostMapping("/{artworkId}")
+	public ResponseEntity<?> addFavourite(@PathVariable Integer artworkId, @RequestAttribute UserCertDto userCertDto) {
+		Integer userId = userCertDto.getUserId();
+		favouriteService.addFavourite(userId, artworkId);
+		return ResponseEntity.ok("收藏成功");
+	}
 
-    // 取消收藏
-    @DeleteMapping("/{artworkId}")
-    public ResponseEntity<?> removeFavourite(@PathVariable Integer artworkId,
-                                             @RequestAttribute UserCertDto userCertDto) {
-        Integer userId = userCertDto.getUserId();
-        favouriteService.removeFavourite(userId, artworkId);
-        return ResponseEntity.ok("取消收藏成功");
-    }
+	// 取消收藏
+	@DeleteMapping("/{artworkId}")
+	public ResponseEntity<?> removeFavourite(@PathVariable Integer artworkId,
+			@RequestAttribute UserCertDto userCertDto) {
+		Integer userId = userCertDto.getUserId();
+		favouriteService.removeFavourite(userId, artworkId);
+		return ResponseEntity.ok("取消收藏成功");
+	}
 
-    // 檢查是否收藏
-    @GetMapping("/{artworkId}")
-    public ResponseEntity<Boolean> hasFavourited(@PathVariable Integer artworkId,
-                                                 @RequestAttribute UserCertDto userCertDto) {
-        Integer userId = userCertDto.getUserId();
-        boolean has = favouriteService.hasFavourited(userId, artworkId);
-        return ResponseEntity.ok(has);
-    }
+	// 檢查是否收藏
+	@GetMapping("/{artworkId}")
+	public ResponseEntity<Boolean> hasFavourited(@PathVariable Integer artworkId,
+			@RequestAttribute UserCertDto userCertDto) {
+		Integer userId = userCertDto.getUserId();
+		boolean has = favouriteService.hasFavourited(userId, artworkId);
+		return ResponseEntity.ok(has);
+	}
 
-    // 取得收藏清單
-    @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getMyFavourites(
-            @RequestAttribute UserCertDto userCertDto,
-            @RequestParam(defaultValue = "newest") String sort
-    ) {
-        Integer userId = userCertDto.getUserId();
-        List<ArtworkCardDto> result = favouriteService.getMyFavourites(userId, sort);
-        return ResponseEntity.ok(ApiResponse.success("我的收藏", result));
-    }
+	// 取得收藏清單
+	@GetMapping("/my")
+	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getMyFavourites(@RequestAttribute UserCertDto userCertDto,
+			@RequestParam(defaultValue = "newest") String sort) {
+		Integer userId = userCertDto.getUserId();
+		List<ArtworkCardDto> result = favouriteService.getMyFavourites(userId, sort);
+		return ResponseEntity.ok(ApiResponse.success("我的收藏", result));
+	}
 
 }
