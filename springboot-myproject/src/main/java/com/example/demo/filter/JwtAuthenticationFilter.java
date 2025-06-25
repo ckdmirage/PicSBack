@@ -33,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         	// 用戶
             path.startsWith("/user/login") ||				// 登入
             path.startsWith("/user/register") ||			// 註冊
-            path.startsWith("/user/verify") ||				// 郵箱驗證
+            path.startsWith("/user/verify/register") ||		// 註冊郵箱驗證
+            path.startsWith("/user/verify/email") ||		// 修改郵箱驗證
+            path.startsWith("/user/verify/password") ||		// 修改密碼驗證
             path.startsWith("/user/homepage/") ||		// 個人主頁
             
             // 作品

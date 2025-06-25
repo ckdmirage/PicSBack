@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class FollowDto {
 	private Integer userId;
 	private String username;
+	private String avatarUrl;
 	private String email;
 	private String role;
 	private LocalDateTime created;

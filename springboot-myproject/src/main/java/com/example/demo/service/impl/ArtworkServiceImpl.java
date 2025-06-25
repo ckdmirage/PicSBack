@@ -36,6 +36,7 @@ import com.example.demo.repository.LikesRepository;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ArtworkService;
+import com.example.demo.service.FileStorageService;
 
 import jakarta.transaction.Transactional;
 
@@ -55,8 +56,9 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	@Autowired
 	private ArtworkMapper artworkMapper;
-
-
+	
+	@Autowired
+	private FileStorageService fileStorageService;
 
 	// 上傳作品
 	@Override
@@ -64,20 +66,15 @@ public class ArtworkServiceImpl implements ArtworkService {
 	public ArtworkDetailDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto,
 			MultipartFile file) {
 		User user = userRepository.findById(userCertDto.getUserId()).orElseThrow(() -> new UnLoginException("尚未登入!"));
-
+		
 		// 儲存圖片
-		String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-		// D:/myprojectImg/artwork/ E:/HTMLCSSJavaScript/myprojectImg/artwork/
-		String localPath = "E:/HTMLCSSJavaScript/myprojectImg/artwork/" + filename;
-		String imageUrl = "http://localhost:8081/myprojectImg/artwork/" + filename;
-
-		try {
-			file.transferTo(new File(localPath));
-		} catch (IOException e) {
-			throw new RuntimeException("圖片儲存失敗: " + e.getMessage(), e);
-		}
-
-		// 處理Tag
+		String imageUrl;
+	    try {
+	        imageUrl = fileStorageService.storeFile(file, "artwork");
+	    } catch (IOException e) {
+	        throw new RuntimeException("圖片儲存失敗: " + e.getMessage(), e);
+	    }
+		// Tag處理
 		Set<Integer> tagIds = new HashSet<>();
 		if (artworkUploadDto.getTagIds() != null && !artworkUploadDto.getTagIds().isEmpty()) {
 			tagIds.addAll(artworkUploadDto.getTagIds());
@@ -97,55 +94,30 @@ public class ArtworkServiceImpl implements ArtworkService {
 		}
 
 		List<Tag> allTags = tagRepository.findAllById(tagIds);
-
 		// 創建Artwork
 		Artwork artwork = new Artwork(null, user, artworkUploadDto.getTitle(), imageUrl, LocalDateTime.now(), allTags);
-
 		Artwork saved = artworkRepository.save(artwork);
-
 		ArtworkDetailFlatDto flat = artworkRepository.findDetailFlatById(saved.getId())
 				.orElseThrow(() -> new ArtworkException("查無作品!"));
-
 		List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(List.of(saved.getId()));
 		List<TagDto> tags = tagTuples.stream().map(t -> new TagDto(t.tagId(), t.tagName())).toList();
-
 		return artworkMapper.toDetailDto(flat, tags, false);
 	}
 
 	// 查單筆作品
 	@Override
 	public ArtworkDetailDto getArtworkDetailDto(Integer artworkId, Integer currentUserId) {
-	    ArtworkDetailFlatDto flat = artworkRepository.findDetailFlatById(artworkId)
-	        .orElseThrow(() -> new ArtworkException("查無作品!"));
-
-	    List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(List.of(artworkId));
-	    List<TagDto> tags = tagTuples.stream()
-	        .map(t -> new TagDto(t.tagId(), t.tagName()))
-	        .toList();
-
-	    boolean liked = currentUserId != null && likesRepository.existsByArtworkIdAndUserId(artworkId, currentUserId);
-
-	    // 封裝作者 UserDto
-	    UserDto author = new UserDto(
-	        flat.authorId(),
-	        flat.authorName(),
-	        flat.authorEmail(),
-	        flat.authorCreated(),
-	        flat.authorAvatarUrl()
-	    );
-
-	    return new ArtworkDetailDto(
-	        flat.artworkId(),
-	        flat.title(),
-	        flat.imageUrl(),
-	        flat.uploaded(),
-	        author,         
-	        tags,
-	        flat.likes(),   
-	        liked
-	    );
+		ArtworkDetailFlatDto flat = artworkRepository.findDetailFlatById(artworkId)
+				.orElseThrow(() -> new ArtworkException("查無作品!"));
+		List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(List.of(artworkId));
+		List<TagDto> tags = tagTuples.stream().map(t -> new TagDto(t.tagId(), t.tagName())).toList();
+		boolean liked = currentUserId != null && likesRepository.existsByArtworkIdAndUserId(artworkId, currentUserId);
+		// 封裝作者 UserDto
+		UserDto author = new UserDto(flat.authorId(), flat.authorName(), flat.authorEmail(), flat.authorCreated(),
+				flat.authorAvatarUrl());
+		return new ArtworkDetailDto(flat.artworkId(), flat.title(), flat.imageUrl(), flat.uploaded(), author, tags,
+				flat.likes(), liked);
 	}
-
 
 	// 查全部作品（支援排序）
 	@Override
@@ -155,7 +127,7 @@ public class ArtworkServiceImpl implements ArtworkService {
 		case "mostLiked" -> artworkRepository.findAllOrderByMostLiked();
 		default -> artworkRepository.findAllOrderByNewest();
 		};
-		return toFullDtoList(flats, viewerId); 
+		return toFullDtoList(flats, viewerId);
 	}
 
 	// 查作者作品（支援排序）
@@ -197,14 +169,11 @@ public class ArtworkServiceImpl implements ArtworkService {
 	@Override
 	@Transactional
 	public void deleteArtwork(Integer artworkId, UserCertDto userCert) {
-	    Artwork artwork = artworkRepository.findById(artworkId)
-	        .orElseThrow(() -> new ArtworkException("作品不存在!"));
-
-	    if (!artwork.getUser().getId().equals(userCert.getUserId())) {
-	        throw new ArtworkException("無法刪除他人的作品");
-	    }
-
-	    artworkRepository.delete(artwork);
+		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(() -> new ArtworkException("作品不存在!"));
+		if (!artwork.getUser().getId().equals(userCert.getUserId())) {
+			throw new ArtworkException("無法刪除他人的作品");
+		}
+		artworkRepository.delete(artwork);
 	}
 
 	// 將扁平DTO 組成前端渲染用 DTO
@@ -229,8 +198,8 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 		return flatDtos.stream()
 				.map(flat -> artworkMapper.toCardDto(flat, tagMap.getOrDefault(flat.artworkId(), List.of()),
-						flat.likes() != null ? flat.likes().intValue() : 0, likedArtworkIds.contains(flat.artworkId()) 
-																														
+						flat.likes() != null ? flat.likes().intValue() : 0, likedArtworkIds.contains(flat.artworkId())
+
 				)).toList();
 	}
 

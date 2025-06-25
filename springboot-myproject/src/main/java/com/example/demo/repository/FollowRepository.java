@@ -28,7 +28,7 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 
 	@Query("""
 				select new com.example.demo.model.dto.followDto.FollowDto(
-				    u.id, u.username, u.email, u.role, u.created, f.createdAt
+				    u.id, u.username, u.avatarUrl, u.email, u.role, u.created, f.createdAt
 				)
 				from Follow f
 				join f.follower u
@@ -39,7 +39,7 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 
 	@Query("""
 				select new com.example.demo.model.dto.followDto.FollowDto(
-				    u.id, u.username, u.email, u.role, u.created, f.createdAt
+				    u.id, u.username, u.avatarUrl, u.email, u.role, u.created, f.createdAt
 				)
 				from Follow f
 				join f.following u

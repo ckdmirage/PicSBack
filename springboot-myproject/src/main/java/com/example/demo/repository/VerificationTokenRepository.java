@@ -13,4 +13,8 @@ import com.example.demo.model.entity.VerificationToken;
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Integer>{
 	@Query(value = "select id, token, expiry_date, user_id from verification_token where token = :token", nativeQuery = true)
 	Optional<VerificationToken> getToken(String token);
+	
+	Optional<VerificationToken> findByToken(String token);
+	
+	void deleteByUser_Id(Integer userId);
 }

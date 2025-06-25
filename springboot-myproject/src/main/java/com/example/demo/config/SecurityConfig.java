@@ -27,12 +27,13 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                		"/user/login", "/user/register", "/user/verify", "/user/homepage/**", 			// 登入頁 註冊頁 郵箱驗證頁 用戶主頁
-                		"/artwork", "/artwork/user/**", "/artwork/tag/**",								// 所有作品表 作者作品表 標籤作品表
-                		"/artwork/tag/**","/artwork/{id:[\\d]+}", 										// 標籤搜索 單個作品	
-                		 "/search/user", "/search/artwork", "/search/tag",								// 搜索欄: 作者 作品 標籤
-                		 "/follow/count/**", "/follow/following/**", "/follow/follower/**",				// 追蹤/粉絲數 追蹤列表 粉絲列表
-                		"/like/count/**", "/like/counts",																// 點讚數量 
+                		"/user/login", "/user/register", "/user/homepage/**", 					// 登入頁 註冊頁 郵箱驗證頁 用戶主頁
+                		"/user/verify/register", "/user/verify/email", "/user/verify/password",	//郵箱驗證頁
+                		"/artwork", "/artwork/user/**", "/artwork/tag/**",						// 所有作品表 作者作品表 標籤作品表
+                		"/artwork/tag/**","/artwork/{id:[\\d]+}", 								// 標籤搜索 單個作品	
+                		 "/search/user", "/search/artwork", "/search/tag",						// 搜索欄: 作者 作品 標籤
+                		 "/follow/count/**", "/follow/following/**", "/follow/follower/**",		// 追蹤/粉絲數 追蹤列表 粉絲列表
+                		"/like/count/**", "/like/counts",										// 點讚數量 
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
                 .requestMatchers("/follow/**").authenticated()

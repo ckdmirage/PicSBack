@@ -31,4 +31,10 @@ public class VerificationToken {
 	private User user;
 
 	private LocalDateTime expiryDate; // token時限
+	
+    @Column(name = "new_email")  
+    private String newEmail = null;
+    
+    @Column(name = "new_password_hash")
+    private String newPasswordHash;
 }

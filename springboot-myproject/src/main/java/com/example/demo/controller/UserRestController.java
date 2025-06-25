@@ -5,16 +5,24 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.exception.UnLoginException;
 import com.example.demo.exception.UserException;
+import com.example.demo.model.dto.EmailChangeDto;
+import com.example.demo.model.dto.PasswordChangeDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
+import com.example.demo.model.dto.userdto.UserUpdateNameDto;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.UserService;
 
@@ -44,9 +52,9 @@ public class UserRestController {
 	}
 
 	// 郵箱驗證
-	@GetMapping("/verify")
+	@GetMapping("/verify/register")
 	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token) {
-		boolean isVerified = userService.verifyUserToken(token);
+		boolean isVerified = userService.verifyUserRegisterToken(token);
 		if (isVerified) {
 			return ResponseEntity.ok(ApiResponse.success("驗證成功", null));
 		} else {
@@ -61,4 +69,60 @@ public class UserRestController {
 		return ResponseEntity.ok(ApiResponse.success("讀取成功", userDto));
 	}
 
+	// 修改頭像
+	@PostMapping("/upload/avatar")
+	public ResponseEntity<ApiResponse<String>> uploadAvatar(@RequestPart("file") MultipartFile file,
+			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
+		if (userCertDto == null) {
+			throw new UnLoginException("請先登入");
+		}
+
+		String imageUrl = userService.updateAvatar(file, userCertDto);
+		return ResponseEntity.ok(ApiResponse.success("上傳成功", imageUrl));
+	}
+
+	// 修改用戶名
+	@PutMapping("/upload/name")
+	public ResponseEntity<ApiResponse<UserCertDto>> updateName(@RequestBody UserUpdateNameDto userUpdateNameDto,
+			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
+		if (userCertDto == null) {
+			throw new UnLoginException("請先登入");
+		}
+		UserCertDto newCertDto = userService.updateName(userCertDto.getUserId(), userUpdateNameDto);
+		return ResponseEntity.ok(ApiResponse.success("修改成功", newCertDto));
+	}
+
+	// 修改郵箱
+	@PostMapping("/upload/email")
+	public ResponseEntity<ApiResponse<String>> requestEmailChange(
+			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto, @RequestBody EmailChangeDto emailChangeDto) {
+
+		userService.requestEmailChange(userCertDto.getUserId(), emailChangeDto.getNewEmail());
+		return ResponseEntity.ok(ApiResponse.success("新郵箱驗證信已寄出", null));
+	}
+
+	// 點擊驗證信連結
+	@GetMapping("/verify/email")
+	public ResponseEntity<String> verifyEmailChange(@RequestParam String token) {
+		userService.verifyEmailChange(token);
+		return ResponseEntity.ok("信箱修改成功！");
+	}
+
+	
+	// 修改密碼
+	@PostMapping("/upload/password")
+	public ResponseEntity<ApiResponse<String>> requestPasswordChange(
+		    @RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
+		    @RequestBody PasswordChangeDto passwordChangeDto) {
+
+		    userService.requestPasswordChange(userCertDto.getUserId(), passwordChangeDto);
+		    return ResponseEntity.ok(ApiResponse.success("密碼修改驗證信已寄出", null));
+		}
+
+	// 點擊驗證信連結
+	@GetMapping("/verify/password")
+	public ResponseEntity<String> verifyPasswordChange(@RequestParam String token) {
+		userService.verifyPasswordChange(token);
+		return ResponseEntity.ok("密碼修改成功！");
+	}
 }

@@ -22,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findByUsername(String username);
 
 	boolean existsByUsername(String username);
+	
+
 
 	// 模糊查詢
 	List<User> findByUsernameContainingIgnoreCase(String keyword);

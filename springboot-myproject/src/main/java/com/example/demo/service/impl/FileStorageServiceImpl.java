@@ -10,22 +10,38 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.service.FileStorageService;
 
 @Service
-public class FileStorageServiceImpl implements FileStorageService{
+public class FileStorageServiceImpl implements FileStorageService {
+	// D:/myprojectImg/ E:/HTMLCSSJavaScript/myprojectImg/
+    private final String artworkDir = "D:/myprojectImg/artwork/";
+    private final String avatarDir = "D:/myprojectImg/avatar/";
 
-	private final String uploadDir = "E:/HTMLCSSJavaScript/myprojectImg/";
-	
-	@Override
-	public String storeFile(MultipartFile file) throws IOException {
-		File dir = new File(uploadDir);
+    @Override
+    public String storeFile(MultipartFile file, String type) throws IOException {
+        String uploadDir;
+        String resourcePath;
+
+        switch (type) {
+            case "avatar" -> {
+                uploadDir = avatarDir;
+                resourcePath = "/myprojectImg/avatar/";
+            }
+            case "artwork" -> {
+                uploadDir = artworkDir;
+                resourcePath = "/myprojectImg/artwork/";
+            }
+            default -> throw new IllegalArgumentException("未知類型: " + type);
+        }
+
+        File dir = new File(uploadDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
+
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         File dest = new File(dir, filename);
         file.transferTo(dest);
-        // 回傳給前端用於img的路徑（不加 http://localhost:8081，讓前端自己拼）
-        String baseUrl = "http://localhost:8081";
-        return baseUrl + "/myprojectImg/" + filename;
-	}
 
+        return "http://localhost:8081" + resourcePath + filename;
+    }
 }
+

@@ -49,7 +49,12 @@ public class FavouriteServiceImpl implements FavouriteService {
 	public void addFavourite(Integer userId, Integer artworkId) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserNoFoundException("找不到此用戶"));
 		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(() -> new ArtworkException("找不到此作品"));
+		// 判斷禁止收藏自己作品
+		if (artwork.getUser().getId().equals(userId)) {
+			throw new FavouriteException("無法收藏自己的作品");
+		}
 		FavouriteId favouriteId = new FavouriteId(userId, artworkId);
+		// 判斷是否已經收藏過作品
 		if (favouriteRepository.existsById(favouriteId)) {
 			throw new FavouriteException("已收藏過該作品");
 		}
@@ -66,49 +71,47 @@ public class FavouriteServiceImpl implements FavouriteService {
 		}
 		favouriteRepository.deleteById(favouriteId);
 	}
+
 	// 判斷是否收藏
 	@Override
 	public boolean hasFavourited(Integer userId, Integer artworkId) {
 		FavouriteId favouriteId = new FavouriteId(userId, artworkId);
 		return favouriteRepository.existsById(favouriteId);
 	}
-	
+
 	// 獲得收藏作品集
 	public List<ArtworkCardDto> getMyFavourites(Integer userId, String sort) {
-	    // 1. 查出排序後的 artworkId
-	    List<Integer> sortedArtworkIds = switch (sort) {
-	        case "oldest" -> favouriteRepository.findArtworkIdsByUserOrderByOldest(userId);
-	        case "liked" -> favouriteRepository.findArtworkIdsByUserOrderByMostLiked(userId);
-	        default -> favouriteRepository.findArtworkIdsByUserOrderByNewest(userId);
-	    };
+		// 1. 查出排序後的 artworkId
+		List<Integer> sortedArtworkIds = switch (sort) {
+		case "oldest" -> favouriteRepository.findArtworkIdsByUserOrderByOldest(userId);
+		case "liked" -> favouriteRepository.findArtworkIdsByUserOrderByMostLiked(userId);
+		default -> favouriteRepository.findArtworkIdsByUserOrderByNewest(userId);
+		};
 
-	    if (sortedArtworkIds.isEmpty()) return List.of();
+		if (sortedArtworkIds.isEmpty())
+			return List.of();
 
-	    // 2. 查詢扁平 DTO
-	    List<ArtworkCardFlatDto> flatDtos = artworkRepository.findCardFlatDtoByIds(sortedArtworkIds);
+		// 2. 查詢扁平 DTO
+		List<ArtworkCardFlatDto> flatDtos = artworkRepository.findCardFlatDtoByIds(sortedArtworkIds);
 
-	    // 3. 查 tag
-	    List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(sortedArtworkIds);
-	    Map<Integer, List<TagDto>> tagMap = new HashMap<>();
-	    for (ArtworkTagDto tuple : tagTuples) {
-	        tagMap.computeIfAbsent(tuple.artworkId(), k -> new ArrayList<>())
-	              .add(new TagDto(tuple.tagId(), tuple.tagName()));
-	    }
+		// 3. 查 tag
+		List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(sortedArtworkIds);
+		Map<Integer, List<TagDto>> tagMap = new HashMap<>();
+		for (ArtworkTagDto tuple : tagTuples) {
+			tagMap.computeIfAbsent(tuple.artworkId(), k -> new ArrayList<>())
+					.add(new TagDto(tuple.tagId(), tuple.tagName()));
+		}
 
-	    // 4. 扁平轉 DTO
-	    Map<Integer, ArtworkCardDto> dtoMap = flatDtos.stream()
-	        .map(flat -> artworkMapper.toDisplayDto(flat, tagMap.getOrDefault(flat.artworkId(), List.of())))
-	        .collect(Collectors.toMap(ArtworkCardDto::getId, Function.identity()));
+		// 4. 扁平轉 DTO
+		Map<Integer, ArtworkCardDto> dtoMap = flatDtos.stream()
+				.map(flat -> artworkMapper.toDisplayDto(flat, tagMap.getOrDefault(flat.artworkId(), List.of())))
+				.collect(Collectors.toMap(ArtworkCardDto::getId, Function.identity()));
 
-	    // 5. 排序還原
-	    List<ArtworkCardDto> sortedResult = sortedArtworkIds.stream()
-	        .map(dtoMap::get)
-	        .filter(Objects::nonNull)
-	        .toList();
+		// 5. 排序還原
+		List<ArtworkCardDto> sortedResult = sortedArtworkIds.stream().map(dtoMap::get).filter(Objects::nonNull)
+				.toList();
 
-	    return sortedResult;
+		return sortedResult;
 	}
-
-
 
 }

@@ -83,8 +83,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(400, e.getMessage()));
     }
-
-    // 10. 兜底處理其他未知錯誤
+    // 10 更新帳號信息錯誤
+    @ExceptionHandler(UserUpdateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUserUpdate(UserUpdateException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(400, e.getMessage()));
+    }
+    
+    // 兜底處理其他未知錯誤
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleOther(Exception e) {
         e.printStackTrace(); // 建議印出 log 協助除錯
