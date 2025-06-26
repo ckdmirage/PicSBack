@@ -25,101 +25,91 @@ import jakarta.servlet.http.HttpServletResponse;
 @Order(1)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-    
-    private boolean isWhiteListPath(String path, String method) {
-        return
-        	// 用戶
-            path.startsWith("/user/login") ||				// 登入
-            path.startsWith("/user/register") ||			// 註冊
-            path.startsWith("/user/verify/register") ||		// 註冊郵箱驗證
-            path.startsWith("/user/verify/email") ||		// 修改郵箱驗證
-            path.startsWith("/user/verify/password") ||		// 修改密碼驗證
-            path.startsWith("/user/homepage/") ||		// 個人主頁
-            
-            // 作品
-            (path.equals("/artwork") && method.equals("GET")) ||                        // 主頁查詢全部作品（含 sort 參數）
-            path.matches("^/artwork/\\d+$") ||                                          // 瀏覽單個作品
-            path.matches("^/artwork/user/\\d+$") ||                                     // 指定作者作品集
-            path.matches("^/artwork/tag/[^/]+$") ||                                     // 指定標籤作品集
+	@Autowired
+	private JwtUtil jwtUtil;
 
-            // 標籤
-            (path.equals("/artwork/tag/search") && method.equals("GET")) ||						// 搜索標籤
+	private boolean isWhiteListPath(String path, String method) {
+		return
+		// 用戶
+		path.startsWith("/user/login") || // 登入
+				path.startsWith("/user/register") || // 註冊
+				path.startsWith("/user/verify/register") || // 註冊郵箱驗證
+				path.startsWith("/user/verify/email") || // 修改郵箱驗證
+				path.startsWith("/user/verify/password") || // 修改密碼驗證
+				path.startsWith("/user/homepage/") || // 個人主頁
 
-            // 搜尋功能白名單
-            (path.equals("/search/user") && method.equals("GET")) ||
-            (path.equals("/search/artwork") && method.equals("GET")) ||
-            (path.equals("/search/tag") && method.equals("GET")) ||
-            
-            // 開放查他人追蹤/粉絲數/列表
-            path.matches("^/follow/count/\\d+$") ||
-            path.matches("^/follow/following/\\d+$") ||
-            path.matches("^/follow/follower/\\d+$") ||
-            
-            // 點讚數
-            path.equals("/like/counts") ||
-            path.matches("^/like/count/\\d+$") ||
-            
-            // 圖片上傳
-            path.startsWith("/public") ||
-            path.startsWith("/myprojectImg") ||
-            path.startsWith("/static") ||
-            path.startsWith("/css") || path.startsWith("/js") || path.startsWith("/images");
-    }
-    
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-    	
-    	String path = request.getRequestURI();
-    	String method = request.getMethod();
-    	
-    	//System.out.println("🛠️ Path: " + path + ", Method: " + method);
-        //System.out.println("🧪 isWhiteListPath 判斷結果: " + isWhiteListPath(path, method));
-    	
-    	
-    	if ("OPTIONS".equalsIgnoreCase(method) || isWhiteListPath(path, method)) {
-    	    filterChain.doFilter(request, response);
-    	    return;
-    	}
+				// 作品
+				(path.equals("/artwork") && method.equals("GET")) || // 主頁查詢全部作品（含 sort 參數）
+				path.matches("^/artwork/\\d+$") || // 瀏覽單個作品
+				path.matches("^/artwork/user/\\d+$") || // 指定作者作品集
+				path.matches("^/artwork/tag/[^/]+$") || // 指定標籤作品集
 
-        // ✅ 進入 token 驗證區
-        String authHeader = request.getHeader("Authorization");
+				// 標籤
+				(path.equals("/artwork/tag/search") && method.equals("GET")) || // 搜索標籤
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            try {
-                Claims claims = jwtUtil.extractClaims(token);
-                String username = claims.get("username", String.class);
-                String role = claims.get("role", String.class);
-                Integer userId = claims.get("userId", Integer.class);
+				// 搜尋功能白名單
+				(path.equals("/search/user") && method.equals("GET"))
+				|| (path.equals("/search/artwork") && method.equals("GET"))
+				|| (path.equals("/search/tag") && method.equals("GET")) ||
 
-                // 設定使用者資訊到 SecurityContext
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userId, null, authorities);
+				// 開放查他人追蹤/粉絲數/列表
+				path.matches("^/follow/count/\\d+$") || path.matches("^/follow/following/\\d+$")
+				|| path.matches("^/follow/follower/\\d+$") ||
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+				// 點讚數
+				path.equals("/like/counts") || path.matches("^/like/count/\\d+$") ||
 
-                // 提供給 Controller 使用
-                request.setAttribute("userCertDto", new UserCertDto(userId, username, role, token));
+				// 圖片上傳
+				path.startsWith("/public") || path.startsWith("/myprojectImg") || path.startsWith("/static")
+				|| path.startsWith("/css") || path.startsWith("/js") || path.startsWith("/images");
+	}
 
-                filterChain.doFilter(request, response);
-                return;
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"status\":401,\"message\":\"Token 無效或過期\"}");
-                return;
-            }
-        }
+		String path = request.getServletPath();
+		String method = request.getMethod();
 
-        // ❌ 沒有帶 Authorization
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"status\":401,\"message\":\"未提供授權資訊\"}");
-    }
+		System.out.println("🔥 Filter running for: " + method + " " + path);
+
+		if ("OPTIONS".equalsIgnoreCase(method) || isWhiteListPath(path, method)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+
+		String authHeader = request.getHeader("Authorization");
+		System.out.println("🧪 authHeader = " + authHeader);
+
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			String token = authHeader.substring(7);
+			try {
+				Claims claims = jwtUtil.extractClaims(token);
+				String username = claims.get("username", String.class);
+				String role = claims.get("role", String.class);
+				Integer userId = claims.get("userId", Integer.class);
+
+				UserCertDto userCertDto = new UserCertDto(userId, username, role, token);
+				List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						userCertDto, null, authorities);
+
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+				request.setAttribute("userCertDto", userCertDto); // 可選
+
+				filterChain.doFilter(request, response);
+			} catch (Exception e) {
+				System.out.println("❌ Token 錯誤：" + e.getMessage());
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				response.setContentType("application/json;charset=UTF-8");
+				response.getWriter().write("{\"status\":401,\"message\":\"Token 無效或過期\"}");
+			}
+			return;
+		}
+
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		response.setContentType("application/json;charset=UTF-8");
+		response.getWriter().write("{\"status\":401,\"message\":\"未提供授權資訊\"}");
+	}
+
 }

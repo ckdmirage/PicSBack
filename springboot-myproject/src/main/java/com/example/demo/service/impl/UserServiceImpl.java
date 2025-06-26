@@ -109,12 +109,13 @@ public class UserServiceImpl implements UserService {
 		String passwordHash = passwordEncoder.encode(userRegisterDto.getPassword());
 
 		User user = new User(null, userRegisterDto.getUsername(), userRegisterDto.getEmail(), passwordHash, false,
-				userRegisterDto.getCreated(), userRegisterDto.getRole(), null, new ArrayList<>(), new ArrayList<>());
+				userRegisterDto.getCreated(), userRegisterDto.getRole(), "http://localhost:8081/myprojectImg/avatar/default.png", new ArrayList<>(), new ArrayList<>());
 		return userRepository.save(user); // 這樣就含有id了
 	}
 
 	// 註冊子方法-郵箱token發送
 	private void createAndSendVerificationToken(User user) {
+		verificationTokenRepository.deleteByUser_Id(user.getId());
 		String token = UUID.randomUUID().toString();
 		VerificationToken verificationToken = new VerificationToken();
 		verificationToken.setToken(token);
@@ -125,38 +126,46 @@ public class UserServiceImpl implements UserService {
 		verificationTokenRepository.save(verificationToken);
 
 		//
-		String verifyLink = "http://localhost:8081/user/verify/register?token=" + token;
+		String verifyLink = buildFrontendVerifyLink("register",token);
 		emailService.sendEmail(user.getEmail(), "請驗證您的帳號", "請點擊以下連結完成驗證：\n" + verifyLink);
 	}
 
 	// 註冊郵箱token驗證
 	@Override
 	@Transactional
-	public boolean verifyUserRegisterToken(String token) {
-		Optional<VerificationToken> optVerificationToken = verificationTokenRepository.findByToken(token);
-		if (optVerificationToken.isEmpty()) {
-			return false;
+	public void verifyUserRegister(String token) {
+		VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+		.orElseThrow(()-> new UserUpdateException("Token無效或不存在"));
+		
+		if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+			throw new UserUpdateException("Token 已過期");
 		}
-		VerificationToken verToken = optVerificationToken.get();
-		if (verToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-			return false;
+		String newEmail = verificationToken.getNewEmail();
+		String newPasswordHash = verificationToken.getNewPasswordHash();
+		if (newEmail != null && newPasswordHash != null) {
+			throw new UserUpdateException("Token 並非用於帳號註冊");
 		}
 		// 驗證成功,修改用戶郵箱驗證:
-		User user = verToken.getUser();
+		User user = verificationToken.getUser();
 		user.setVerified(true);
 		userRepository.save(user);
 		// 刪除token
-		verificationTokenRepository.delete(verToken);
-		return true;
+		verificationTokenRepository.delete(verificationToken);
 	}
 
 	// 子方法 驗證郵箱格式
-	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
 	private void validateEmailFormat(String email) {
 		if (!EMAIL_PATTERN.matcher(email).matches()) {
 			throw new UserUpdateException("請輸入合法的信箱格式");
 		}
+	}
+	
+	//子方法 郵件發送路徑
+	private String buildFrontendVerifyLink(String type, String token) {
+	    String frontendBaseUrl = "http://localhost:5173"; // TODO: 正式上線時改為正式網址
+	    return frontendBaseUrl + "/verify/result?type=" + type + "&token=" + token;
 	}
 
 	// 修改頭像
@@ -172,7 +181,7 @@ public class UserServiceImpl implements UserService {
 			// 判斷非default，刪除舊圖
 			String oldAvatarUrl = user.getAvatarUrl();
 			String baseUrl = "http://localhost:8081/myprojectImg/avatar/";
-			String localDir = "D:/myprojectImg/avatar/"; // E:/HTMLCSSJavaScript/myprojectImg/ D:/myprojectImg/avatar/
+			String localDir = "E:/HTMLCSSJavaScript/myprojectImg/avatar/"; // E:/HTMLCSSJavaScript/myprojectImg/ D:/myprojectImg/avatar/
 			if (oldAvatarUrl != null && oldAvatarUrl.startsWith(baseUrl) && !oldAvatarUrl.contains("/default.png")) {
 				String relativePath = oldAvatarUrl.substring(baseUrl.length());
 				File oldFile = new File(localDir + relativePath);
@@ -242,8 +251,8 @@ public class UserServiceImpl implements UserService {
 		verificationToken.setNewPasswordHash(null);
 		verificationTokenRepository.save(verificationToken);
 
-		String link = "http://localhost:8081/user/verify/email?token=" + token;
-		emailService.sendEmail(newEmail, "請驗證您的新信箱", "請點擊以下連結完成信箱修改：\n" + link);
+		String verifyLink = buildFrontendVerifyLink("email",token);
+		emailService.sendEmail(newEmail, "請驗證您的新信箱", "請點擊以下連結完成信箱修改：\n" + verifyLink);
 	}
 
 	// 修改郵箱-token驗證
@@ -268,7 +277,6 @@ public class UserServiceImpl implements UserService {
 
 		verificationTokenRepository.delete(vt);
 	}
-
 	
 	// 修改密碼-token發送
 	@Override
@@ -301,8 +309,8 @@ public class UserServiceImpl implements UserService {
 	    verificationTokenRepository.save(verificationToken);
 
 	    // 5. 寄信
-	    String link = "http://localhost:8081/user/verify/password?token=" + token;
-	    emailService.sendEmail(user.getEmail(), "請驗證您的密碼修改", "請點擊以下連結完成密碼變更：\n" + link);
+	    String verifyLink = buildFrontendVerifyLink("password",token);
+	    emailService.sendEmail(user.getEmail(), "請驗證您的密碼修改", "請點擊以下連結完成密碼變更：\n" + verifyLink);
 	}
 	
 	// 修改密碼-token驗證

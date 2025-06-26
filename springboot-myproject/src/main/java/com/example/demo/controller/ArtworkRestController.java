@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.example.demo.exception.TagException;
 import com.example.demo.exception.UnLoginException;
 import com.example.demo.model.dto.TagDto;
@@ -90,6 +92,7 @@ public class ArtworkRestController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<ApiResponse<String>> deleteArtwork(@PathVariable Integer id,
 			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
+		 System.out.println("👤 auth = " + SecurityContextHolder.getContext().getAuthentication());
 		if (userCertDto == null) {
 			throw new UnLoginException("未登入，無法刪除作品");
 		}

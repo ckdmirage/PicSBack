@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +29,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                 		"/user/login", "/user/register", "/user/homepage/**", 					// 登入頁 註冊頁 郵箱驗證頁 用戶主頁
-                		"/user/verify/register", "/user/verify/email", "/user/verify/password",	//郵箱驗證頁
+                		"user/verify/register", "user/verify/email", "user/verify/password",	// 郵箱驗證頁
                 		"/artwork", "/artwork/user/**", "/artwork/tag/**",						// 所有作品表 作者作品表 標籤作品表
                 		"/artwork/tag/**","/artwork/{id:[\\d]+}", 								// 標籤搜索 單個作品	
                 		 "/search/user", "/search/artwork", "/search/tag",						// 搜索欄: 作者 作品 標籤
@@ -36,6 +37,7 @@ public class SecurityConfig {
                 		"/like/count/**", "/like/counts",										// 點讚數量 
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/artwork/**").authenticated()
                 .requestMatchers("/follow/**").authenticated()
                 .anyRequest().authenticated()
             )
@@ -49,7 +51,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
