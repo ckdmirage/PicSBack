@@ -8,6 +8,7 @@ import com.example.demo.model.dto.PasswordChangeDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.dto.userdto.UserLoginDto;
+import com.example.demo.model.dto.userdto.UserManageDto;
 import com.example.demo.model.dto.userdto.UserRegisterDto;
 import com.example.demo.model.dto.userdto.UserUpdateNameDto;
 
@@ -35,4 +36,9 @@ public interface UserService {
 	void requestPasswordChange(Integer userId, PasswordChangeDto passwordChangeDto);
 	
 	void verifyPasswordChange(String token);
+	
+	
+	List<UserManageDto> getAllUsersForAdmin(UserCertDto operator);
+	
+	void updateUserRole(Integer userId, String newRole, UserCertDto operator);
 }

@@ -39,7 +39,7 @@ public class ArtworkRestController {
 
 	private final TagService tagService;
 
-	// 作品上傳(需驗證身分)
+	// 作品上傳(驗證身分)
 	@PostMapping("/upload")
 	public ResponseEntity<ApiResponse<ArtworkDetailDto>> uploadArtwork(
 			@RequestPart("artwork") ArtworkUploadDto artworkUploadDto, @RequestPart("file") MultipartFile file,
@@ -48,7 +48,7 @@ public class ArtworkRestController {
 		return ResponseEntity.ok(ApiResponse.success("上傳成功!", dto));
 	}
 
-	// 瀏覽作品(可以驗證身分 確認點讚)
+	// 瀏覽作品（作品頁）(可以驗證身分 確認點讚)
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<ArtworkDetailDto>> artworkDisplay(@PathVariable Integer id,
 			@RequestAttribute(value = "userCertDto", required = false) UserCertDto userCertDto) {
@@ -76,7 +76,7 @@ public class ArtworkRestController {
 				.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUserSorted(userId, sort, viewerId)));
 	}
 
-	// 根據標籤顯示作品 (標籤頁面)(可以驗證身分 確認點讚)
+	// 根據標籤顯示作品(標籤頁)(可以驗證身分 確認點讚)
 	@GetMapping("/tag/{tagname}")
 	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getByTagSorted(@PathVariable String tagname,
 			@RequestParam(defaultValue = "newest") String sort,

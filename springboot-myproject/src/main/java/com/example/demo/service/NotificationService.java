@@ -13,7 +13,7 @@ public interface NotificationService {
 
     void markAsRead(Long notificationId);
 
-    void cleanupOldNotificationsForUser(Integer userId);
+    //void cleanupOldNotificationsForUser(Integer userId);
     
     boolean hasUnread(Integer userId);
 }

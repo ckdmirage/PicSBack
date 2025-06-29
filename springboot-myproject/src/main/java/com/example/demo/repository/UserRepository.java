@@ -27,4 +27,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	// 模糊查詢
 	List<User> findByUsernameContainingIgnoreCase(String keyword);
+	
+	
+	List<User> findByRoleNotIn(List<String> roles);
 }

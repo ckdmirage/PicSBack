@@ -17,9 +17,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	List<Notification> findByReceiverId(Integer userId);
 
 	// 用於刪除過期通知（read_at 超過 1 天）
-	@Modifying
-	@Query("DELETE FROM Notification n WHERE n.readAt IS NOT NULL AND n.readAt < :deadline")
-	void deleteReadBefore(@Param("deadline") LocalDateTime deadline);
+	//@Modifying
+	//@Query("DELETE FROM Notification n WHERE n.readAt IS NOT NULL AND n.readAt < :deadline")
+	//void deleteReadBefore(@Param("deadline") LocalDateTime deadline);
 
 	@Query("""
 		    SELECT new com.example.demo.model.dto.NotificationDto(

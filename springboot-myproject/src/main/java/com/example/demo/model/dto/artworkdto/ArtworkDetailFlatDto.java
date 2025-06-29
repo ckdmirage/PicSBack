@@ -2,6 +2,7 @@ package com.example.demo.model.dto.artworkdto;
 
 import java.time.LocalDateTime;
 
+// 前端作品頁扁平dto
 public record ArtworkDetailFlatDto(
 	    Integer artworkId,
 	    String title,

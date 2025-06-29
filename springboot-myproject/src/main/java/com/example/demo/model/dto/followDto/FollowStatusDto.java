@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// 扁平dto
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -61,7 +61,7 @@ public class LikesRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", hasLike));
 	}
 
-	// 批量查詢點讚數量
+	// 查詢作品列表點讚數量
 	@GetMapping("/counts")
 	public ResponseEntity<ApiResponse<Map<Integer, Integer>>> countLikesBatch(
 	        @RequestParam("artworkIds") List<Integer> artworkIds) {

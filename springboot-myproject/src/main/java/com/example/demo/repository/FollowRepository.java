@@ -26,6 +26,7 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 
 	int countByFollowingId(Integer followingId); // 被追蹤
 
+	
 	@Query("""
 				select new com.example.demo.model.dto.followDto.FollowDto(
 				    u.id, u.username, u.avatarUrl, u.email, u.role, u.created, f.createdAt

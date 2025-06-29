@@ -34,7 +34,7 @@ public class SecurityConfig {
                 		 "/search/user", "/search/artwork", "/search/tag",						// 搜索欄: 作者 作品 標籤
                 		 "/follow/count/**", "/follow/following/**", "/follow/follower/**",		// 追蹤/粉絲數 追蹤列表 粉絲列表
                 		"/like/count/**", "/like/counts",										// 點讚數量 
-                		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
+                		"/public", "/myprojectImg/**"  ) 										// 用戶上傳圖片
                 .permitAll()
                 .requestMatchers("/follow/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")

@@ -81,7 +81,7 @@ public class FavouriteServiceImpl implements FavouriteService {
 
 	// 獲得收藏作品集
 	public List<ArtworkCardDto> getMyFavourites(Integer userId, String sort) {
-		// 1. 查出排序後的 artworkId
+		// 查出排序後的 artworkId
 		List<Integer> sortedArtworkIds = switch (sort) {
 		case "oldest" -> favouriteRepository.findArtworkIdsByUserOrderByOldest(userId);
 		case "liked" -> favouriteRepository.findArtworkIdsByUserOrderByMostLiked(userId);
@@ -91,10 +91,10 @@ public class FavouriteServiceImpl implements FavouriteService {
 		if (sortedArtworkIds.isEmpty())
 			return List.of();
 
-		// 2. 查詢扁平 DTO
+		// 查詢扁平 DTO
 		List<ArtworkCardFlatDto> flatDtos = artworkRepository.findCardFlatDtoByIds(sortedArtworkIds);
 
-		// 3. 查 tag
+		// 查 tag
 		List<ArtworkTagDto> tagTuples = artworkRepository.findTagTuplesByArtworkIds(sortedArtworkIds);
 		Map<Integer, List<TagDto>> tagMap = new HashMap<>();
 		for (ArtworkTagDto tuple : tagTuples) {
@@ -102,12 +102,12 @@ public class FavouriteServiceImpl implements FavouriteService {
 					.add(new TagDto(tuple.tagId(), tuple.tagName()));
 		}
 
-		// 4. 扁平轉 DTO
+		// 扁平轉前端渲染dto
 		Map<Integer, ArtworkCardDto> dtoMap = flatDtos.stream()
 				.map(flat -> artworkMapper.toDisplayDto(flat, tagMap.getOrDefault(flat.artworkId(), List.of())))
 				.collect(Collectors.toMap(ArtworkCardDto::getId, Function.identity()));
 
-		// 5. 排序還原
+		// 排序還原
 		List<ArtworkCardDto> sortedResult = sortedArtworkIds.stream().map(dtoMap::get).filter(Objects::nonNull)
 				.toList();
 

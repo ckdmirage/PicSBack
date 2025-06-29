@@ -25,7 +25,7 @@ public class NotificationRestController {
 	@Autowired
 	private NotificationService notificationService;
 
-	// ✅ 用戶查詢通知列表
+	// 用戶查詢通知列表
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<NotificationDto>>> getMyNotifications(
 			@RequestAttribute UserCertDto userCertDto) {
@@ -33,7 +33,7 @@ public class NotificationRestController {
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", notifications));
 	}
 
-	// ✅ 用戶標記通知為已讀
+	// 用戶標記通知為已讀
 	@PostMapping("/{id}/read")
 	public ResponseEntity<ApiResponse<String>> markAsRead(@PathVariable Long id) {
 		notificationService.markAsRead(id);

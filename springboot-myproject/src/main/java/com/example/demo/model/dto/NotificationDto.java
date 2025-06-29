@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor // ✅ 必加這行
+@AllArgsConstructor 
 public class NotificationDto {
 	private Integer id;
 	private NotificationMessageType messageType;
@@ -18,7 +18,6 @@ public class NotificationDto {
 	private LocalDateTime readAt;
 	private Integer adminId;
 
-	// ✅ 這種非欄位對應的方法不影響 JPQL 建構
 	public String getMessage() {
 		return messageType.getMessage();
 	}

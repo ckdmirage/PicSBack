@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// 建立追蹤關係用Dto
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

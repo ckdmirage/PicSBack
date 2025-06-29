@@ -19,6 +19,7 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 			    SELECT new com.example.demo.model.dto.reportDto.ReportDisplayDto(
 			        r.id,
 			        r.reporter.username,
+			        r.reporter.id,
 			        r.artwork.id,
 			        r.artwork.title,
 			        r.reason,

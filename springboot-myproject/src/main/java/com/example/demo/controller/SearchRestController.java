@@ -39,7 +39,7 @@ public class SearchRestController {
 		return ResponseEntity.ok(ApiResponse.success("搜尋成功", users));
 	}
 
-	// 搜尋作品（可排序 可驗證身分）
+	// 搜尋作品（可排序 驗證身分）
 	@GetMapping("/artwork")
 	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> searchArtworks(
 	    @RequestParam String keyword,

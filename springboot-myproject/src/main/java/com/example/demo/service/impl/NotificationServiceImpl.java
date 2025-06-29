@@ -58,11 +58,11 @@ public class NotificationServiceImpl implements NotificationService{
 	}
 
 	//刪除通知
-	@Override
-	public void cleanupOldNotificationsForUser(Integer userId) {
-		 LocalDateTime deadline = LocalDateTime.now().minusDays(1);
-	        notificationRepository.deleteReadBefore(deadline);
-	}
+	//@Override
+	//public void cleanupOldNotificationsForUser(Integer userId) {
+	//	 LocalDateTime deadline = LocalDateTime.now().minusDays(1);
+	//        notificationRepository.deleteReadBefore(deadline);
+	//}
 
 	//檢查未讀-前端渲染用
 	@Override

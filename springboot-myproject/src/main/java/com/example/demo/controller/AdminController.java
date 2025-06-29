@@ -8,14 +8,19 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.dto.reportDto.ReportDisplayDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
+import com.example.demo.model.dto.userdto.UserManageDto;
+import com.example.demo.model.dto.userdto.UserUpgradeRoleDto;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.ReportService;
+import com.example.demo.service.UserService;
 
 @RestController
 @RequestMapping("/admin")
@@ -23,31 +28,51 @@ import com.example.demo.service.ReportService;
 public class AdminController {
 
 	@Autowired
-    private ReportService reportService;
+	private ReportService reportService;
 
-    // 查詢所有未處理檢舉
-    @GetMapping("/artwork/list")
-    public ResponseEntity<ApiResponse<List<ReportDisplayDto>>> getAllPendingReports() {
-        return ResponseEntity.ok(ApiResponse.success("查詢成功", reportService.getAllReports()));
-    }
+	@Autowired
+	private UserService userService;
 
-    // 駁回檢舉（需為管理員）
-    @PostMapping("/reject/{reportId}")
-    public ResponseEntity<ApiResponse<String>> rejectReport(
-            @PathVariable Integer reportId,
-            @RequestAttribute UserCertDto userCertDto   // ✅ 接收從 JwtFilter 傳進來的 admin 身分
-    ) {
-        reportService.rejectReport(reportId, userCertDto);
-        return ResponseEntity.ok(ApiResponse.success("已駁回檢舉", null));
-    }
+	// 查詢所有未處理檢舉
+	@GetMapping("/artwork/list")
+	public ResponseEntity<ApiResponse<List<ReportDisplayDto>>> getAllPendingReports() {
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", reportService.getAllReports()));
+	}
 
-    // 通過檢舉並刪除作品
-    @PostMapping("/approve/{reportId}")
-    public ResponseEntity<ApiResponse<String>> approveAndDeleteArtwork(
-            @PathVariable Integer reportId,
-            @RequestAttribute UserCertDto userCertDto   // ✅ 傳給 Service 用來記錄誰發的通知
-    ) {
-        reportService.deleteArtworkAndResolveReport(reportId, userCertDto);
-        return ResponseEntity.ok(ApiResponse.success("作品已刪除", null));
-    }
+	// 駁回檢舉（需為管理員）
+	@PostMapping("/reject/{reportId}")
+	public ResponseEntity<ApiResponse<String>> rejectReport(@PathVariable Integer reportId,
+			@RequestAttribute UserCertDto userCertDto 
+	) {
+		reportService.rejectReport(reportId, userCertDto);
+		return ResponseEntity.ok(ApiResponse.success("已駁回檢舉", null));
+	}
+
+	// 通過檢舉並刪除作品
+	@PostMapping("/approve/{reportId}")
+	public ResponseEntity<ApiResponse<String>> approveAndDeleteArtwork(@PathVariable Integer reportId,
+			@RequestAttribute UserCertDto userCertDto 
+	) {
+		reportService.deleteArtworkAndResolveReport(reportId, userCertDto);
+		return ResponseEntity.ok(ApiResponse.success("作品已刪除", null));
+	}
+
+	// 查詢用戶列表
+	@GetMapping("/user/list")
+	public ResponseEntity<ApiResponse<List<UserManageDto>>> getAllUsers(@RequestAttribute UserCertDto userCertDto) {
+		List<UserManageDto> users = userService.getAllUsersForAdmin(userCertDto);
+		return ResponseEntity.ok(ApiResponse.success("查詢成功", users));
+	}
+
+	// 管理員更新用戶權限
+	@PutMapping("/user/{targetId}/role")
+	public ResponseEntity<ApiResponse<String>> updateUserRole(@PathVariable Integer targetId,
+			@RequestBody UserUpgradeRoleDto request, @RequestAttribute UserCertDto userCertDto) {
+
+		System.out.println("接收到角色變更請求，newRole = " + request.getNewRole());
+
+		userService.updateUserRole(targetId, request.getNewRole(), userCertDto);
+		return ResponseEntity.ok(ApiResponse.success("角色更新成功", null));
+	}
+
 }

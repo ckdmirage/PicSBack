@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-//註冊用dto,前端傳回資料
 
+//註冊用dto,前端傳回資料
 @Data
 public class UserRegisterDto {
 	

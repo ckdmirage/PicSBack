@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+// 上傳作品用dto
 @Data
 public class ArtworkUploadDto {
 	@NotBlank(message = "作品名不能為空")

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+//前端作品頁渲染用dto
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
