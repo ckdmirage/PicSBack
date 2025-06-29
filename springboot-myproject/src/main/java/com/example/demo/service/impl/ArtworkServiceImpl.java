@@ -1,6 +1,5 @@
 package com.example.demo.service.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.exception.ArtworkException;
 import com.example.demo.exception.UnLoginException;
+import com.example.demo.exception.UserNoFoundException;
 import com.example.demo.mapper.ArtworkMapper;
 import com.example.demo.model.dto.TagDto;
 import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
@@ -31,12 +30,15 @@ import com.example.demo.model.dto.userdto.UserDto;
 import com.example.demo.model.entity.Artwork;
 import com.example.demo.model.entity.Tag;
 import com.example.demo.model.entity.User;
+import com.example.demo.model.enums.NotificationMessageType;
 import com.example.demo.repository.ArtworkRepository;
+import com.example.demo.repository.FavouriteRepository;
 import com.example.demo.repository.LikesRepository;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ArtworkService;
 import com.example.demo.service.FileStorageService;
+import com.example.demo.service.NotificationService;
 
 import jakarta.transaction.Transactional;
 
@@ -53,12 +55,18 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	@Autowired
 	private LikesRepository likesRepository;
+	
+	@Autowired
+	private FavouriteRepository favouriteRepository;
 
 	@Autowired
 	private ArtworkMapper artworkMapper;
 	
 	@Autowired
 	private FileStorageService fileStorageService;
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	// 上傳作品
 	@Override
@@ -169,11 +177,42 @@ public class ArtworkServiceImpl implements ArtworkService {
 	@Override
 	@Transactional
 	public void deleteArtwork(Integer artworkId, UserCertDto userCert) {
-		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(() -> new ArtworkException("作品不存在!"));
-		if (!artwork.getUser().getId().equals(userCert.getUserId())) {
-			throw new ArtworkException("無法刪除他人的作品");
-		}
-		artworkRepository.delete(artwork);
+	    Artwork artwork = artworkRepository.findById(artworkId)
+	        .orElseThrow(() -> new ArtworkException("作品不存在!"));
+
+	    Integer currentUserId = userCert.getUserId();
+	    User currentUser = userRepository.findById(currentUserId)
+	        .orElseThrow(() -> new UserNoFoundException("使用者不存在"));
+
+	    User author = artwork.getUser();
+	    boolean isAuthor = currentUserId.equals(author.getId());
+	    boolean isAdmin = userCert.getRole().equals("ADMIN");
+
+	    if (!isAuthor && !isAdmin) {
+	        throw new ArtworkException("無權限刪除此作品");
+	    }
+
+	    // 刪除關聯資料
+	    List<Tag> tags = new ArrayList<>(artwork.getTags());
+	    likesRepository.deleteByArtworkId(artworkId);
+	    favouriteRepository.findByArtworkId(artworkId);
+	    artworkRepository.delete(artwork);
+
+	    for (Tag tag : tags) {
+	        int count = tagRepository.countArtworkByTagId(tag.getId());
+	        if (count == 0) {
+	            tagRepository.deleteById(tag.getId());
+	        }
+	    }
+
+	    // ✅ 如果是管理員刪除非自己作品，發送通知給作者
+	    if (isAdmin && !isAuthor) {
+	        notificationService.sendNotification(
+	            currentUser, 
+	            author,      
+	            NotificationMessageType.ARTWORK_REMOVED
+	        );
+	    }
 	}
 
 	// 將扁平DTO 組成前端渲染用 DTO

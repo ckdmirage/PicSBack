@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.model.entity.Tag;
@@ -18,4 +19,7 @@ public interface TagRepository extends JpaRepository<Tag, Integer>{
 	 // 模糊搜尋（不區分大小寫）
     List<Tag> findByNameContainingIgnoreCase(String keyword);
     
+    // 檢查tag的作品數
+    @Query("SELECT COUNT(a) FROM Artwork a JOIN a.tags t WHERE t.id = :tagId")
+    int countArtworkByTagId(@Param("tagId") Integer tagId);
 }

@@ -54,12 +54,8 @@ public class UserRestController {
 	// 郵箱驗證
 	@GetMapping("/verify/register")
 	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token) {
-		boolean isVerified = userService.verifyUserRegisterToken(token);
-		if (isVerified) {
-			return ResponseEntity.ok(ApiResponse.success("驗證成功", null));
-		} else {
-			return ResponseEntity.badRequest().body(ApiResponse.error(400, "驗證失敗或連結過期"));
-		}
+		userService.verifyUserRegister(token);
+		return ResponseEntity.ok(ApiResponse.success("驗證成功!", null));
 	}
 
 	// 個人主頁
@@ -95,7 +91,8 @@ public class UserRestController {
 	// 修改郵箱
 	@PostMapping("/upload/email")
 	public ResponseEntity<ApiResponse<String>> requestEmailChange(
-			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto, @RequestBody EmailChangeDto emailChangeDto) {
+			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
+			@RequestBody EmailChangeDto emailChangeDto) {
 
 		userService.requestEmailChange(userCertDto.getUserId(), emailChangeDto.getNewEmail());
 		return ResponseEntity.ok(ApiResponse.success("新郵箱驗證信已寄出", null));
@@ -103,26 +100,25 @@ public class UserRestController {
 
 	// 點擊驗證信連結
 	@GetMapping("/verify/email")
-	public ResponseEntity<String> verifyEmailChange(@RequestParam String token) {
+	public ResponseEntity<ApiResponse<String>> verifyEmailChange(@RequestParam String token) {
 		userService.verifyEmailChange(token);
-		return ResponseEntity.ok("信箱修改成功！");
+		return ResponseEntity.ok(ApiResponse.success("驗證成功!", null));
 	}
 
-	
 	// 修改密碼
 	@PostMapping("/upload/password")
 	public ResponseEntity<ApiResponse<String>> requestPasswordChange(
-		    @RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
-		    @RequestBody PasswordChangeDto passwordChangeDto) {
+			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
+			@RequestBody PasswordChangeDto passwordChangeDto) {
 
-		    userService.requestPasswordChange(userCertDto.getUserId(), passwordChangeDto);
-		    return ResponseEntity.ok(ApiResponse.success("密碼修改驗證信已寄出", null));
-		}
+		userService.requestPasswordChange(userCertDto.getUserId(), passwordChangeDto);
+		return ResponseEntity.ok(ApiResponse.success("密碼修改驗證信已寄出", null));
+	}
 
 	// 點擊驗證信連結
 	@GetMapping("/verify/password")
-	public ResponseEntity<String> verifyPasswordChange(@RequestParam String token) {
+	public ResponseEntity<ApiResponse<String>> verifyPasswordChange(@RequestParam String token) {
 		userService.verifyPasswordChange(token);
-		return ResponseEntity.ok("密碼修改成功！");
+		return ResponseEntity.ok(ApiResponse.success("驗證成功!", null));
 	}
 }

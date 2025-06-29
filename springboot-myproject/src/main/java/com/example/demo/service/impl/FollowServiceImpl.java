@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.FollowException;
 import com.example.demo.exception.UserNoFoundException;
-import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.dto.followDto.FollowDto;
 import com.example.demo.model.entity.Follow;
 import com.example.demo.model.entity.User;

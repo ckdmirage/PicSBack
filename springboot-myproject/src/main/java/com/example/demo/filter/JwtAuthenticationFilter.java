@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             // 作品
             (path.equals("/artwork") && method.equals("GET")) ||                        // 主頁查詢全部作品（含 sort 參數）
-            path.matches("^/artwork/\\d+$") ||                                          // 瀏覽單個作品
+            (path.matches("^/artwork/\\d+$") && method.equals("GET")) ||              // 瀏覽單個作品
             path.matches("^/artwork/user/\\d+$") ||                                     // 指定作者作品集
             path.matches("^/artwork/tag/[^/]+$") ||                                     // 指定標籤作品集
 
@@ -104,6 +104,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 提供給 Controller 使用
                 request.setAttribute("userCertDto", new UserCertDto(userId, username, role, token));
+                
+                if (path.startsWith("/admin") && !"ADMIN".equals(role)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"status\":403,\"message\":\"您不是管理員，無權訪問此資源\"}");
+                    return;
+                }
 
                 filterChain.doFilter(request, response);
                 return;

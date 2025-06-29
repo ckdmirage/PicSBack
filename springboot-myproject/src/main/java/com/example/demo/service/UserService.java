@@ -21,7 +21,7 @@ public interface UserService {
 	
 	void addUser(UserRegisterDto userRegisterDto);
 	
-	boolean verifyUserRegisterToken(String token);
+	void verifyUserRegister(String token);
 	
 	
 	String updateAvatar(MultipartFile file, UserCertDto userCertDto);

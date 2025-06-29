@@ -31,6 +31,6 @@ public interface LikesRepository extends JpaRepository<Likes, LikeId>{
     	""")
     	List<Integer> findLikedArtworkIds(@Param("userId") Integer userId, @Param("artworkIds") List<Integer> artworkIds);
 
-
-    
+    //供刪除作品時相關點讚記錄
+    void deleteByArtworkId(Integer artworkId);
 }

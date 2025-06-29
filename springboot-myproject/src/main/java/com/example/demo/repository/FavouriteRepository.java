@@ -18,6 +18,10 @@ public interface FavouriteRepository extends JpaRepository<Favourite, FavouriteI
 	boolean existsById(FavouriteId id);
 
 	void deleteById(FavouriteId id);
+	
+	//供刪除作品時相關收藏記錄
+	@Query("SELECT f FROM Favourite f WHERE f.favouriteId.artworkId = :artworkId")
+	List<Favourite> findByArtworkId(@Param("artworkId") Integer artworkId);
 
 	@EntityGraph(attributePaths = { "artwork" })
 	List<Favourite> findByUserIdOrderByCreateAtDesc(Integer userId);

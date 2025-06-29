@@ -37,6 +37,7 @@ public class SecurityConfig {
                 		"/public", "/myprojectImg/**"  ) // 用戶上傳圖片
                 .permitAll()
                 .requestMatchers("/follow/**").authenticated()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

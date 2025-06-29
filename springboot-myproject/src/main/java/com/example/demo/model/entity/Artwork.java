@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "artwork")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class Artwork {
 	@Id
@@ -48,4 +47,8 @@ public class Artwork {
 	@JoinTable(name = "artwork_tag", joinColumns = @JoinColumn(name = "artwork_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
 	private List<Tag> tags = new ArrayList<>();
 
+	
+	public Artwork() {
+	    System.out.println("⚠️ Artwork 被 new 出來了");
+	}
 }
