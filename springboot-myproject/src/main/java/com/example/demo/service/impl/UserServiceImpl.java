@@ -90,6 +90,9 @@ public class UserServiceImpl implements UserService {
 		if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPasswordHash())) {
 			throw new PasswordInvalidException("密碼錯誤");
 		}
+		if(!user.getVerified()) {
+			throw new UserException("您還未通過郵箱驗證");
+		}
 		if ("BAN".equalsIgnoreCase(user.getRole())) {
 	        throw new UserException("您的帳號已被管理員封鎖，請等待解封");
 	    }

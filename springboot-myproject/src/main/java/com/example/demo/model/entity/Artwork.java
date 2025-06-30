@@ -49,6 +49,6 @@ public class Artwork {
 
 	
 	public Artwork() {
-	    System.out.println("⚠️ Artwork 被 new 出來了");
+	    
 	}
 }
