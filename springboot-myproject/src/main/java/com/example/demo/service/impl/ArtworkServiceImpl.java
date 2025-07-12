@@ -11,6 +11,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,16 +59,16 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	@Autowired
 	private LikesRepository likesRepository;
-	
+
 	@Autowired
 	private FavouriteRepository favouriteRepository;
 
 	@Autowired
 	private ArtworkMapper artworkMapper;
-	
+
 	@Autowired
 	private FileStorageService fileStorageService;
-	
+
 	@Autowired
 	private NotificationService notificationService;
 
@@ -74,14 +78,14 @@ public class ArtworkServiceImpl implements ArtworkService {
 	public ArtworkDetailDto uploadArtwork(UserCertDto userCertDto, ArtworkUploadDto artworkUploadDto,
 			MultipartFile file) {
 		User user = userRepository.findById(userCertDto.getUserId()).orElseThrow(() -> new UnLoginException("尚未登入!"));
-		
+
 		// 儲存圖片
 		String imageUrl;
-	    try {
-	        imageUrl = fileStorageService.storeFile(file, "artwork");
-	    } catch (IOException e) {
-	        throw new RuntimeException("圖片儲存失敗: " + e.getMessage(), e);
-	    }
+		try {
+			imageUrl = fileStorageService.storeFile(file, "artwork");
+		} catch (IOException e) {
+			throw new RuntimeException("圖片儲存失敗: " + e.getMessage(), e);
+		}
 		// Tag處理
 		Set<Integer> tagIds = new HashSet<>();
 		if (artworkUploadDto.getTagIds() != null && !artworkUploadDto.getTagIds().isEmpty()) {
@@ -127,92 +131,115 @@ public class ArtworkServiceImpl implements ArtworkService {
 				flat.likes(), liked);
 	}
 
-	// 查全部作品（支援排序）
+	// 查全部作品（Pageable 排序）
 	@Override
-	public List<ArtworkCardDto> getAllArtworkDtosSorted(String sortType, Integer viewerId) {
-		List<ArtworkCardFlatDto> flats = switch (sortType) {
-		case "oldest" -> artworkRepository.findAllOrderByOldest();
-		case "mostLiked" -> artworkRepository.findAllOrderByMostLiked();
-		default -> artworkRepository.findAllOrderByNewest();
-		};
-		return toFullDtoList(flats, viewerId);
+	public Page<ArtworkCardDto> getAllArtworkDtosPaged(Pageable pageable, Integer viewerId) {
+	    boolean sortByLikes = pageable.getSort().stream()
+	        .anyMatch(order -> order.getProperty().equalsIgnoreCase("likes"));
+
+	    Page<ArtworkCardFlatDto> flats;
+
+	    if (sortByLikes) {
+	        Pageable noSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+	        flats = artworkRepository.findAllOrderByLikes(noSort);
+	    } else {
+	        flats = artworkRepository.findAllWithLikes(pageable);
+	    }
+
+	    List<ArtworkCardDto> dtoList = toFullDtoList(flats.getContent(), viewerId);
+	    return new PageImpl<>(dtoList, pageable, flats.getTotalElements());
 	}
 
-	// 查作者作品（支援排序）
+
+	// 查作者作品（Pageable 排序）
 	@Override
-	public List<ArtworkCardDto> getArtworkDtosByUserSorted(Integer userId, String sortType, Integer viewerId) {
-		List<ArtworkCardFlatDto> flats = switch (sortType) {
-		case "oldest" -> artworkRepository.findByUserIdOrderByOldest(userId);
-		case "mostLiked" -> artworkRepository.findByUserIdOrderByMostLiked(userId);
-		default -> artworkRepository.findByUserIdOrderByNewest(userId);
-		};
-		return toFullDtoList(flats, viewerId);
+	public Page<ArtworkCardDto> getArtworkDtosByUserPaged(Integer userId, Pageable pageable, Integer viewerId) {
+	    boolean sortByLikes = pageable.getSort().stream()
+	        .anyMatch(order -> order.getProperty().equalsIgnoreCase("likes"));
+
+	    Page<ArtworkCardFlatDto> flats;
+
+	    if (sortByLikes) {
+	        Pageable noSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+	        flats = artworkRepository.findByUserIdOrderByLikes(userId, noSort);
+	    } else {
+	        flats = artworkRepository.findByUserIdWithLikes(userId, pageable);
+	    }
+
+	    List<ArtworkCardDto> dtoList = toFullDtoList(flats.getContent(), viewerId);
+	    return new PageImpl<>(dtoList, pageable, flats.getTotalElements());
 	}
 
-	// 查標籤作品（支援排序）
+	// 查標籤作品（Pageable 排序）
 	@Override
-	public List<ArtworkCardDto> getArtworkDtosByTagSorted(String tagname, String sortType, Integer viewerId) {
-		List<ArtworkCardFlatDto> flats = switch (sortType) {
-		case "oldest" -> artworkRepository.findByTagNameOrderByOldest(tagname);
-		case "mostLiked" -> artworkRepository.findByTagNameOrderByMostLiked(tagname);
-		default -> artworkRepository.findByTagNameOrderByNewest(tagname);
-		};
-		if (flats.isEmpty())
+	public Page<ArtworkCardDto> getArtworkDtosByTagPaged(String tagname, Pageable pageable, Integer viewerId) {
+		boolean sortByLikes = pageable.getSort().stream()
+				.anyMatch(order -> order.getProperty().equalsIgnoreCase("likes"));
+		Page<ArtworkCardFlatDto> flats;
+		if (sortByLikes) {
+			Pageable noSortPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+			flats = artworkRepository.findByTagNameOrderByLikes(tagname, noSortPageable);
+		} else {
+			flats = artworkRepository.findByTagNameWithLikes(tagname, pageable);
+		}
+
+		if (flats.isEmpty()) {
 			throw new ArtworkException("查無作品!");
-		return toFullDtoList(flats, viewerId);
+		}
+
+		List<ArtworkCardDto> dtoList = toFullDtoList(flats.getContent(), viewerId);
+		return new PageImpl<>(dtoList, pageable, flats.getTotalElements());
 	}
 
-	// 模糊搜尋（支援排序）
+	// 模糊搜尋（Pageable 排序）
 	@Override
-	public List<ArtworkCardDto> searchByTitle(String keyword, String sortType, Integer viewerId) {
-		List<ArtworkCardFlatDto> flats = switch (sortType) {
-		case "oldest" -> artworkRepository.searchByTitleOldest(keyword);
-		case "mostLiked" -> artworkRepository.searchByTitleMostLiked(keyword);
-		default -> artworkRepository.searchByTitleNewest(keyword);
-		};
-		return toFullDtoList(flats, viewerId);
+	public Page<ArtworkCardDto> searchByTitle(String keyword, Pageable pageable, Integer viewerId) {
+		boolean sortByLikes = pageable.getSort().stream()
+				.anyMatch(order -> order.getProperty().equalsIgnoreCase("likes"));
+
+		Page<ArtworkCardFlatDto> flats;
+
+		if (sortByLikes) {
+			Pageable noSortPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+			flats = artworkRepository.searchByTitleOrderByLikes(keyword, noSortPageable);
+		} else {
+			flats = artworkRepository.searchByTitleWithLikes(keyword, pageable);
+		}
+		List<ArtworkCardDto> dtoList = toFullDtoList(flats.getContent(), viewerId);
+		return new PageImpl<>(dtoList, pageable, flats.getTotalElements());
 	}
 
 	// 刪除作品
 	@Override
 	@Transactional
 	public void deleteArtwork(Integer artworkId, UserCertDto userCert) {
-	    Artwork artwork = artworkRepository.findById(artworkId)
-	        .orElseThrow(() -> new ArtworkException("作品不存在!"));
+		Artwork artwork = artworkRepository.findById(artworkId).orElseThrow(() -> new ArtworkException("作品不存在!"));
+		Integer currentUserId = userCert.getUserId();
+		User currentUser = userRepository.findById(currentUserId).orElseThrow(() -> new UserNoFoundException("使用者不存在"));
+		User author = artwork.getUser();
+		boolean isAuthor = currentUserId.equals(author.getId());
+		boolean isAdmin = userCert.getRole().equals("ADMIN");
+		if (!isAuthor && !isAdmin) {
+			throw new ArtworkException("無權限刪除此作品");
+		}
 
-	    Integer currentUserId = userCert.getUserId();
-	    User currentUser = userRepository.findById(currentUserId)
-	        .orElseThrow(() -> new UserNoFoundException("使用者不存在"));
+		// 刪除關聯資料
+		List<Tag> tags = new ArrayList<>(artwork.getTags());
+		likesRepository.deleteByArtworkId(artworkId);
+		favouriteRepository.findByArtworkId(artworkId);
+		artworkRepository.delete(artwork);
 
-	    User author = artwork.getUser();
-	    boolean isAuthor = currentUserId.equals(author.getId());
-	    boolean isAdmin = userCert.getRole().equals("ADMIN");
+		for (Tag tag : tags) {
+			int count = tagRepository.countArtworkByTagId(tag.getId());
+			if (count == 0) {
+				tagRepository.deleteById(tag.getId());
+			}
+		}
 
-	    if (!isAuthor && !isAdmin) {
-	        throw new ArtworkException("無權限刪除此作品");
-	    }
-
-	    // 刪除關聯資料
-	    List<Tag> tags = new ArrayList<>(artwork.getTags());
-	    likesRepository.deleteByArtworkId(artworkId);
-	    favouriteRepository.findByArtworkId(artworkId);
-	    artworkRepository.delete(artwork);
-
-	    for (Tag tag : tags) {
-	        int count = tagRepository.countArtworkByTagId(tag.getId());
-	        if (count == 0) {
-	            tagRepository.deleteById(tag.getId());
-	        }
-	    }
-
-	    // ✅ 如果是管理員刪除非自己作品，發送通知給作者
-	    if (isAdmin && !isAuthor) {
-	        notificationService.sendNotification(
-	            currentUser, 
-	            author,      
-	            NotificationMessageType.ARTWORK_REMOVED
-	        );
-	    }
+		// ✅ 如果是管理員刪除非自己作品，發送通知給作者
+		if (isAdmin && !isAuthor) {
+			notificationService.sendNotification(currentUser, author, NotificationMessageType.ARTWORK_REMOVED);
+		}
 	}
 
 	// 將扁平DTO 組成前端渲染用 DTO

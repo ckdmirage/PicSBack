@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.model.dto.artworkdto.ArtworkCardDto;
@@ -17,11 +19,11 @@ public interface ArtworkService {
 	
 	void deleteArtwork(Integer artworkId, UserCertDto userCert);
 	
-	List<ArtworkCardDto> getAllArtworkDtosSorted(String sortType, Integer viewerId);
+	Page<ArtworkCardDto> getAllArtworkDtosPaged(Pageable pageable, Integer viewerId);
 
-	List<ArtworkCardDto> getArtworkDtosByUserSorted(Integer userId, String sortType, Integer viewerId);
+	Page<ArtworkCardDto> getArtworkDtosByUserPaged(Integer userId, Pageable pageable, Integer viewerId);
 	
-	List<ArtworkCardDto> getArtworkDtosByTagSorted(String tagname, String sortType, Integer viewerId);
+	Page<ArtworkCardDto> getArtworkDtosByTagPaged(String tagname, Pageable pageable, Integer viewerId);
 	
-	List<ArtworkCardDto> searchByTitle(String keyword, String sortType, Integer viewerId) ;
+	Page<ArtworkCardDto> searchByTitle(String keyword, Pageable pageable, Integer viewerId);
 }

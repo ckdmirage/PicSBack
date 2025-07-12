@@ -3,6 +3,8 @@ package com.example.demo.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,49 +34,34 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			""")
 	Optional<ArtworkDetailFlatDto> findDetailFlatById(@Param("artworkId") Integer artworkId);
 
-	// 查詢所有作品：從新到舊
+	// 首頁（全部作品）可排序、可分頁
 	@Query("""
-					SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-					a.id, a.title, a.imageUrl, a.uploaded,
-					u.id, u.username, COUNT(l)
-					)
-					FROM Artwork a
-					JOIN a.user u
-					LEFT JOIN Likes l ON l.artwork.id = a.id
-					GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-					ORDER BY a.uploaded DESC
+			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
+			        a.id, a.title, a.imageUrl, a.uploaded,
+			        u.id, u.username, COUNT(l)
+			    )
+			    FROM Artwork a
+			    JOIN a.user u
+			    LEFT JOIN Likes l ON l.artwork.id = a.id
+			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
 			""")
-	List<ArtworkCardFlatDto> findAllOrderByNewest();
-
-	// 查詢所有作品：從舊到新
+	Page<ArtworkCardFlatDto> findAllWithLikes(Pageable pageable);
+	
+	// 首頁 根據讚數排序（單獨查詢）
 	@Query("""
-					SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-					a.id, a.title, a.imageUrl, a.uploaded,
-					u.id, u.username, COUNT(l)
-					)
-					FROM Artwork a
-					JOIN a.user u
-					LEFT JOIN Likes l ON l.artwork.id = a.id
-					GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-					ORDER BY a.uploaded ASC
-			""")
-	List<ArtworkCardFlatDto> findAllOrderByOldest();
+		    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
+		        a.id, a.title, a.imageUrl, a.uploaded,
+		        u.id, u.username, COUNT(l)
+		    )
+		    FROM Artwork a
+		    JOIN a.user u
+		    LEFT JOIN Likes l ON l.artwork.id = a.id
+		    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
+		    ORDER BY COUNT(l) DESC
+		""")
+		Page<ArtworkCardFlatDto> findAllOrderByLikes(Pageable pageable);
 
-	// 查詢所有作品：按點讚
-	@Query("""
-					SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-					a.id, a.title, a.imageUrl, a.uploaded,
-					u.id, u.username, COUNT(l)
-					)
-					FROM Artwork a
-					JOIN a.user u
-					LEFT JOIN Likes l ON l.artwork.id = a.id
-					GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-					ORDER BY COUNT(l) DESC
-			""")
-	List<ArtworkCardFlatDto> findAllOrderByMostLiked();
-
-	// 根據作者：從新到舊
+	// 作者頁：依 userId 查詢，可排序、可分頁
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
 			        a.id, a.title, a.imageUrl, a.uploaded,
@@ -85,41 +72,25 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			    LEFT JOIN Likes l ON l.artwork.id = a.id
 			    WHERE u.id = :userId
 			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded DESC
 			""")
-	List<ArtworkCardFlatDto> findByUserIdOrderByNewest(@Param("userId") Integer userId);
-
-	// 根據作者：按舊到新
+	Page<ArtworkCardFlatDto> findByUserIdWithLikes(@Param("userId") Integer userId, Pageable pageable);
+	
+	// 作者頁 根據讚數排序（單獨查詢）
 	@Query("""
-			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-			        a.id, a.title, a.imageUrl, a.uploaded,
-			        u.id, u.username, COUNT(l)
-			    )
-			    FROM Artwork a
-			    JOIN a.user u
-			    LEFT JOIN Likes l ON l.artwork.id = a.id
-			    WHERE u.id = :userId
-			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded ASC
-			""")
-	List<ArtworkCardFlatDto> findByUserIdOrderByOldest(@Param("userId") Integer userId);
+		    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
+		        a.id, a.title, a.imageUrl, a.uploaded,
+		        u.id, u.username, COUNT(l)
+		    )
+		    FROM Artwork a
+		    JOIN a.user u
+		    LEFT JOIN Likes l ON l.artwork.id = a.id
+		    WHERE u.id = :userId
+		    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
+		    ORDER BY COUNT(l) DESC
+		""")
+		Page<ArtworkCardFlatDto> findByUserIdOrderByLikes(@Param("userId") Integer userId, Pageable pageable);
 
-	// 根據作者：按讚數
-	@Query("""
-			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-			        a.id, a.title, a.imageUrl, a.uploaded,
-			        u.id, u.username, COUNT(l)
-			    )
-			    FROM Artwork a
-			    JOIN a.user u
-			    LEFT JOIN Likes l ON l.artwork.id = a.id
-			    WHERE u.id = :userId
-			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY COUNT(l) DESC
-			""")
-	List<ArtworkCardFlatDto> findByUserIdOrderByMostLiked(@Param("userId") Integer userId);
-
-	// 根據標籤：從新到舊
+	// 標籤頁 依 tagName 查詢，可排序、可分頁
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
 			        a.id, a.title, a.imageUrl, a.uploaded,
@@ -131,27 +102,10 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			    LEFT JOIN Likes l ON l.artwork.id = a.id
 			    WHERE t.name = :tagName
 			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded DESC
 			""")
-	List<ArtworkCardFlatDto> findByTagNameOrderByNewest(@Param("tagName") String tagName);
+	Page<ArtworkCardFlatDto> findByTagNameWithLikes(@Param("tagName") String tagName, Pageable pageable);
 
-	// 根據標籤：從舊到新
-	@Query("""
-			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-			        a.id, a.title, a.imageUrl, a.uploaded,
-			        u.id, u.username, COUNT(l)
-			    )
-			    FROM Artwork a
-			    JOIN a.user u
-			    JOIN a.tags t
-			    LEFT JOIN Likes l ON l.artwork.id = a.id
-			    WHERE t.name = :tagName
-			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded ASC
-			""")
-	List<ArtworkCardFlatDto> findByTagNameOrderByOldest(@Param("tagName") String tagName);
-
-	// 根據標籤：按讚數
+	// 標簽頁 根據讚數排序（單獨查詢）
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
 			        a.id, a.title, a.imageUrl, a.uploaded,
@@ -165,9 +119,9 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
 			    ORDER BY COUNT(l) DESC
 			""")
-	List<ArtworkCardFlatDto> findByTagNameOrderByMostLiked(@Param("tagName") String tagName);
+	Page<ArtworkCardFlatDto> findByTagNameOrderByLikes(@Param("tagName") String tagName, Pageable pageable);
 
-	// 模糊搜尋：從新到舊
+	// 模糊搜尋：依 title 查詢，可排序、可分頁
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
 			        a.id, a.title, a.imageUrl, a.uploaded,
@@ -178,30 +132,13 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			    LEFT JOIN Likes l ON l.artwork.id = a.id
 			    WHERE LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
 			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded DESC
 			""")
-	List<ArtworkCardFlatDto> searchByTitleNewest(@Param("keyword") String keyword);
+	Page<ArtworkCardFlatDto> searchByTitleWithLikes(@Param("keyword") String keyword, Pageable pageable);
 
-	// 模糊搜尋：從舊到新
+	// 模糊搜尋：根據讚數排序（單獨查詢）
 	@Query("""
 			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-			        a.id, a.title, a.imageUrl, a.uploaded,
-			        u.id, u.username, COUNT(l)
-			    )
-			    FROM Artwork a
-			    JOIN a.user u
-			    LEFT JOIN Likes l ON l.artwork.id = a.id
-			    WHERE LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
-			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
-			    ORDER BY a.uploaded ASC
-			""")
-	List<ArtworkCardFlatDto> searchByTitleOldest(@Param("keyword") String keyword);
-
-	// 模糊搜尋：按點讚
-	@Query("""
-			    SELECT new com.example.demo.model.dto.artworkdto.ArtworkCardFlatDto(
-			        a.id, a.title, a.imageUrl, a.uploaded,
-			        u.id, u.username, COUNT(l)
+			        a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username, COUNT(l)
 			    )
 			    FROM Artwork a
 			    JOIN a.user u
@@ -210,7 +147,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Integer> {
 			    GROUP BY a.id, a.title, a.imageUrl, a.uploaded, u.id, u.username
 			    ORDER BY COUNT(l) DESC
 			""")
-	List<ArtworkCardFlatDto> searchByTitleMostLiked(@Param("keyword") String keyword);
+	Page<ArtworkCardFlatDto> searchByTitleOrderByLikes(@Param("keyword") String keyword, Pageable pageable);
 
 	// 一次查所有作品對應的 tag 資訊
 	@Query("""

@@ -67,4 +67,16 @@ public class ArtworkMapper {
 		return dto;
 	}
 
+	public ArtworkDetailDto toFullDto(ArtworkDetailFlatDto flat, List<TagDto> tags, boolean likedByCurrentUser) {
+		UserDto author = new UserDto();
+		author.setId(flat.authorId());
+		author.setUsername(flat.authorName());
+		author.setEmail(flat.authorEmail());
+		author.setAvatarUrl(flat.authorAvatarUrl());
+		author.setCreated(flat.authorCreated());
+
+		return new ArtworkDetailDto(flat.artworkId(), flat.title(), flat.imageUrl(), flat.uploaded(), author, tags,
+				flat.likes(), likedByCurrentUser);
+	}
+
 }

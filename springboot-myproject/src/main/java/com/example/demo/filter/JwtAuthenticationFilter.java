@@ -66,59 +66,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
+	        throws ServletException, IOException {
 
-		String path = request.getRequestURI();
-		String method = request.getMethod();
+	    String path = request.getRequestURI();
+	    String method = request.getMethod();
 
-		if ("OPTIONS".equalsIgnoreCase(method) || isWhiteListPath(path, method)) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+	    if ("OPTIONS".equalsIgnoreCase(method) || isWhiteListPath(path, method)) {
+	        filterChain.doFilter(request, response);
+	        return;
+	    }
 
-		// token 驗證
-		String authHeader = request.getHeader("Authorization");
+	    String authHeader = request.getHeader("Authorization");
 
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			String token = authHeader.substring(7);
-			try {
-				Claims claims = jwtUtil.extractClaims(token);
-				String username = claims.get("username", String.class);
-				String role = claims.get("role", String.class);
-				Integer userId = claims.get("userId", Integer.class);
+	    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	        String token = authHeader.substring(7);
+	        try {
+	            Claims claims = jwtUtil.extractClaims(token);
+	            String username = claims.get("username", String.class);
+	            String role = claims.get("role", String.class);
+	            Integer userId = claims.get("userId", Integer.class);
 
-				// 設定使用者資訊 SecurityContext
-				List<GrantedAuthority> authorities;
-				if ("ROOT".equals(role)) {
-					// ROOT擁有ADMIN權限
-					authorities = List.of(new SimpleGrantedAuthority("ROLE_ROOT"),
-							new SimpleGrantedAuthority("ROLE_ADMIN"));
-				} else {
-					authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-				}
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
-						null, authorities);
+	            List<GrantedAuthority> authorities;
+	            if ("ROOT".equals(role)) {
+	                authorities = List.of(
+	                    new SimpleGrantedAuthority("ROLE_ROOT"),
+	                    new SimpleGrantedAuthority("ROLE_ADMIN")
+	                );
+	            } else {
+	                authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+	            }
 
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+	            UsernamePasswordAuthenticationToken authentication =
+	                    new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
-				// 提供 Controller userCertDto
-				request.setAttribute("userCertDto", new UserCertDto(userId, username, role, token));
+	            SecurityContextHolder.getContext().setAuthentication(authentication);
+	            request.setAttribute("userCertDto", new UserCertDto(userId, username, role, token));
 
-				filterChain.doFilter(request, response);
-				return;
+	        } catch (Exception e) {
+	            // Token 無效 → 當作匿名訪問，清除 auth，不設 userCertDto
+	            SecurityContextHolder.clearContext();
+	        }
+	    }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json;charset=UTF-8");
-				response.getWriter().write("{\"status\":401,\"message\":\"Token 無效或過期\"}");
-				return;
-			}
-		}
-
-		// 沒帶Authorization拒絕訪問
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.setContentType("application/json;charset=UTF-8");
-		response.getWriter().write("{\"status\":401,\"message\":\"未提供授權資訊\"}");
+	    // ❗最後一定要放行，不論有沒有 token 或 token 是否有效
+	    filterChain.doFilter(request, response);
 	}
+
 }

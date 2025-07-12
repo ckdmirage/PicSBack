@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,15 +43,15 @@ public class SearchRestController {
 
 	// 搜尋作品（可排序 驗證身分）
 	@GetMapping("/artwork")
-	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> searchArtworks(
-	    @RequestParam String keyword,
-	    @RequestParam(defaultValue = "newest") String sort,
-	    @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
-	) {
-	    Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
-	    List<ArtworkCardDto> artworks = artworkService.searchByTitle(keyword, sort, viewerId);
-	    return ResponseEntity.ok(ApiResponse.success("搜尋成功", artworks));
-	}
+    public ResponseEntity<ApiResponse<Page<ArtworkCardDto>>> searchArtworks(
+            @RequestParam String keyword,
+            Pageable pageable,
+            @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
+    ) {
+        Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+        Page<ArtworkCardDto> result = artworkService.searchByTitle(keyword, pageable, viewerId);
+        return ResponseEntity.ok(ApiResponse.success("搜尋成功", result));
+    }
 
 
 	// 搜尋標籤

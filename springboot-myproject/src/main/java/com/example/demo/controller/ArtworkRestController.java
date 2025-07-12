@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.example.demo.exception.TagException;
 import com.example.demo.exception.UnLoginException;
 import com.example.demo.model.dto.TagDto;
@@ -59,32 +62,38 @@ public class ArtworkRestController {
 
 	// 獲取所有作品(主頁)(可以驗證身分 確認點讚)
 	@GetMapping
-	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getAllSorted(
-			@RequestParam(defaultValue = "newest") String sort,
-			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
-		Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
-		return ResponseEntity.ok(ApiResponse.success("查詢成功", artworkService.getAllArtworkDtosSorted(sort, viewerId)));
-	}
+    public ResponseEntity<ApiResponse<Page<ArtworkCardDto>>> getAll(
+            Pageable pageable,
+            @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
+    ) {
+        Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+        Page<ArtworkCardDto> result = artworkService.getAllArtworkDtosPaged(pageable, viewerId);
+        return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+    }
 
 	// 根據作者顯示作品(作者頁面)(可以驗證身分 確認點讚)
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getByUserSorted(@PathVariable Integer userId,
-			@RequestParam(defaultValue = "newest") String sort,
-			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
-		Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
-		return ResponseEntity
-				.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByUserSorted(userId, sort, viewerId)));
-	}
+    public ResponseEntity<ApiResponse<Page<ArtworkCardDto>>> getByUser(
+            @PathVariable Integer userId,
+            Pageable pageable,
+            @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
+    ) {
+        Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+        Page<ArtworkCardDto> result = artworkService.getArtworkDtosByUserPaged(userId, pageable, viewerId);
+        return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+    }
 
 	// 根據標籤顯示作品(標籤頁)(可以驗證身分 確認點讚)
 	@GetMapping("/tag/{tagname}")
-	public ResponseEntity<ApiResponse<List<ArtworkCardDto>>> getByTagSorted(@PathVariable String tagname,
-			@RequestParam(defaultValue = "newest") String sort,
-			@RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto) {
-		Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
-		return ResponseEntity
-				.ok(ApiResponse.success("查詢成功", artworkService.getArtworkDtosByTagSorted(tagname, sort, viewerId)));
-	}
+    public ResponseEntity<ApiResponse<Page<ArtworkCardDto>>> getByTag(
+            @PathVariable String tagname,
+            Pageable pageable,
+            @RequestAttribute(name = "userCertDto", required = false) UserCertDto userCertDto
+    ) {
+        Integer viewerId = userCertDto != null ? userCertDto.getUserId() : null;
+        Page<ArtworkCardDto> result = artworkService.getArtworkDtosByTagPaged(tagname, pageable, viewerId);
+        return ResponseEntity.ok(ApiResponse.success("查詢成功", result));
+    }
 
 	// 刪除作品 
 	@DeleteMapping("/{id}")
