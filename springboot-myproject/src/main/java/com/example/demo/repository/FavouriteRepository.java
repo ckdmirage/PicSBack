@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.model.dto.favouriteDto.FavouriteFlatDto;
 import com.example.demo.model.entity.Favourite;
@@ -74,5 +76,10 @@ public interface FavouriteRepository extends JpaRepository<Favourite, FavouriteI
 			    ORDER BY COUNT(l) DESC
 			""")
 	List<Integer> findArtworkIdsByUserOrderByMostLiked(@Param("userId") Integer userId);
+	
+	// 批量刪除-刪除作品用
+	@Modifying
+	@Query("DELETE FROM Favourite f WHERE f.artwork.id = :artworkId")
+	void deleteAllByArtworkId(@Param("artworkId") Integer artworkId);
 
 }

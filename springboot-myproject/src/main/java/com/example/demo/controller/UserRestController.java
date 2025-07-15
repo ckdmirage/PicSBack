@@ -51,7 +51,7 @@ public class UserRestController {
 		return ResponseEntity.ok(ApiResponse.success("登入成功", userCertDto));
 	}
 
-	// 郵箱驗證
+	// 註冊驗證
 	@GetMapping("/verify/register")
 	public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam("token") String token) {
 		userService.verifyUserRegister(token);
@@ -93,12 +93,14 @@ public class UserRestController {
 	public ResponseEntity<ApiResponse<String>> requestEmailChange(
 			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
 			@RequestBody EmailChangeDto emailChangeDto) {
-
+		if (userCertDto == null) {
+			throw new UnLoginException("請先登入");
+		}
 		userService.requestEmailChange(userCertDto.getUserId(), emailChangeDto.getNewEmail());
 		return ResponseEntity.ok(ApiResponse.success("新郵箱驗證信已寄出", null));
 	}
 
-	// 點擊驗證信連結
+	// 修改郵箱驗證
 	@GetMapping("/verify/email")
 	public ResponseEntity<ApiResponse<String>> verifyEmailChange(@RequestParam String token) {
 		userService.verifyEmailChange(token);
@@ -110,12 +112,14 @@ public class UserRestController {
 	public ResponseEntity<ApiResponse<String>> requestPasswordChange(
 			@RequestAttribute(name = "userCertDto") UserCertDto userCertDto,
 			@RequestBody PasswordChangeDto passwordChangeDto) {
-
+		if (userCertDto == null) {
+			throw new UnLoginException("請先登入");
+		}
 		userService.requestPasswordChange(userCertDto.getUserId(), passwordChangeDto);
 		return ResponseEntity.ok(ApiResponse.success("密碼修改驗證信已寄出", null));
 	}
 
-	// 點擊驗證信連結
+	// 修改密碼驗證
 	@GetMapping("/verify/password")
 	public ResponseEntity<ApiResponse<String>> verifyPasswordChange(@RequestParam String token) {
 		userService.verifyPasswordChange(token);

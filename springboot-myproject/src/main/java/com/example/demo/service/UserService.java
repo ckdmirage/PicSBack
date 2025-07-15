@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.model.dto.PasswordChangeDto;
@@ -38,7 +40,7 @@ public interface UserService {
 	void verifyPasswordChange(String token);
 	
 	
-	List<UserManageDto> getAllUsersForAdmin(UserCertDto operator);
+	Page<UserManageDto> getAllUsersForAdmin(UserCertDto operator, Pageable pageable);
 	
 	void updateUserRole(Integer userId, String newRole, UserCertDto operator);
 }

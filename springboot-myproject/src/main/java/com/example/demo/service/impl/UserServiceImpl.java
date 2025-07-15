@@ -11,6 +11,9 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,12 +93,12 @@ public class UserServiceImpl implements UserService {
 		if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPasswordHash())) {
 			throw new PasswordInvalidException("密碼錯誤");
 		}
-		if(!user.getVerified()) {
+		if (!user.getVerified()) {
 			throw new UserException("您還未通過郵箱驗證");
 		}
 		if ("BAN".equalsIgnoreCase(user.getRole())) {
-	        throw new UserException("您的帳號已被管理員封鎖，請等待解封");
-	    }
+			throw new UserException("您的帳號已被管理員封鎖，請等待解封");
+		}
 
 		// 生成token回傳UserCertDto權限驗證
 		String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
@@ -353,21 +356,25 @@ public class UserServiceImpl implements UserService {
 
 	// 管理員權限：用戶列表
 	@Override
-	public List<UserManageDto> getAllUsersForAdmin(UserCertDto operator) {
-		List<User> users;
+	public Page<UserManageDto> getAllUsersForAdmin(UserCertDto operator, Pageable pageable) {
+		List<String> excludedRoles;
 
 		if ("ROOT".equals(operator.getRole())) {
-			// 🔓 ROOT 可看所有（包含其他 ADMIN）
-			users = userRepository.findByRoleNotIn(List.of("ROOT"));
+			excludedRoles = List.of("ROOT");
 		} else if ("ADMIN".equals(operator.getRole())) {
-			// 🔒 ADMIN 不能看其他 ADMIN 或 ROOT
-			users = userRepository.findByRoleNotIn(List.of("ADMIN", "ROOT"));
+			excludedRoles = List.of("ADMIN", "ROOT");
 		} else {
 			throw new UserException("權限受限！");
 		}
 
-		return users.stream().map(user -> new UserManageDto(user.getId(), user.getUsername(), user.getRole(),
-				user.getAvatarUrl(), user.getCreated())).toList();
+		// 分頁查詢符合條件的使用者
+		Page<User> userPage = userRepository.findByRoleNotIn(excludedRoles, pageable);
+
+		// 將 Page<User> 映射為 Page<UserManageDto>
+		List<UserManageDto> dtoList = userPage.getContent().stream().map(user -> new UserManageDto(user.getId(),
+				user.getUsername(), user.getRole(), user.getAvatarUrl(), user.getCreated())).toList();
+
+		return new PageImpl<>(dtoList, pageable, userPage.getTotalElements());
 	}
 
 	// 管理員權限：處理用戶權限

@@ -38,6 +38,7 @@ import com.example.demo.model.enums.NotificationMessageType;
 import com.example.demo.repository.ArtworkRepository;
 import com.example.demo.repository.FavouriteRepository;
 import com.example.demo.repository.LikesRepository;
+import com.example.demo.repository.ReportRepository;
 import com.example.demo.repository.TagRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ArtworkService;
@@ -62,6 +63,9 @@ public class ArtworkServiceImpl implements ArtworkService {
 
 	@Autowired
 	private FavouriteRepository favouriteRepository;
+	
+	@Autowired
+	private ReportRepository reportRepository;
 
 	@Autowired
 	private ArtworkMapper artworkMapper;
@@ -224,6 +228,8 @@ public class ArtworkServiceImpl implements ArtworkService {
 		}
 
 		// 刪除關聯資料
+		reportRepository.deleteByArtworkId(artworkId);
+		reportRepository.flush();
 		List<Tag> tags = new ArrayList<>(artwork.getTags());
 		likesRepository.deleteByArtworkId(artworkId);
 		favouriteRepository.findByArtworkId(artworkId);

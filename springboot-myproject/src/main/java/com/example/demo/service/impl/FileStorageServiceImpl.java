@@ -12,8 +12,8 @@ import com.example.demo.service.FileStorageService;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 	// D:/myprojectImg/ E:/HTMLCSSJavaScript/myprojectImg/
-    private final String artworkDir = "E:/HTMLCSSJavaScript/myprojectImg/artwork/";
-    private final String avatarDir = "E:/HTMLCSSJavaScript/myprojectImg/avatar/";
+    private final String artworkDir = "D:/myprojectImg/artwork/";
+    private final String avatarDir = "D:/myprojectImg/avatar/";
 
     @Override
     public String storeFile(MultipartFile file, String type) throws IOException {

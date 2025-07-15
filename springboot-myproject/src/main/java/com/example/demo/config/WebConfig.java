@@ -12,10 +12,10 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		// 作品圖片
 		registry.addResourceHandler("/myprojectImg/artwork/**")
-				.addResourceLocations("file:E:/HTMLCSSJavaScript/myprojectImg/artwork/");
+				.addResourceLocations("file:D:/myprojectImg/artwork/");
 
 		// 用戶頭像
 		registry.addResourceHandler("/myprojectImg/avatar/**")
-				.addResourceLocations("file:E:/HTMLCSSJavaScript/myprojectImg/avatar/");
+				.addResourceLocations("file:D:/myprojectImg/avatar/");
 	}
 }

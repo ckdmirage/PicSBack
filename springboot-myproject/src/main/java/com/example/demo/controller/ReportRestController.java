@@ -20,7 +20,7 @@ import com.example.demo.service.ReportService;
 @RestController
 @RequestMapping("/report")
 @CrossOrigin(origins = { "http://localhost:5173" }, allowCredentials = "true")
-public class ReportController {
+public class ReportRestController {
 
 	@Autowired
     private ReportService reportService;

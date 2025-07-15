@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +28,7 @@ import com.example.demo.service.UserService;
 @RestController
 @RequestMapping("/admin")
 @CrossOrigin(origins = { "http://localhost:5173" }, allowCredentials = "true")
-public class AdminController {
+public class AdminRestController {
 
 	@Autowired
 	private ReportService reportService;
@@ -59,8 +62,8 @@ public class AdminController {
 
 	// 查詢用戶列表
 	@GetMapping("/user/list")
-	public ResponseEntity<ApiResponse<List<UserManageDto>>> getAllUsers(@RequestAttribute UserCertDto userCertDto) {
-		List<UserManageDto> users = userService.getAllUsersForAdmin(userCertDto);
+	public ResponseEntity<ApiResponse<Page<UserManageDto>>> getAllUsers(@RequestAttribute UserCertDto userCertDto,Pageable pageable) {
+		Page<UserManageDto> users = userService.getAllUsersForAdmin(userCertDto, pageable);
 		return ResponseEntity.ok(ApiResponse.success("查詢成功", users));
 	}
 
@@ -68,9 +71,6 @@ public class AdminController {
 	@PutMapping("/user/{targetId}/role")
 	public ResponseEntity<ApiResponse<String>> updateUserRole(@PathVariable Integer targetId,
 			@RequestBody UserUpgradeRoleDto request, @RequestAttribute UserCertDto userCertDto) {
-
-		System.out.println("接收到角色變更請求，newRole = " + request.getNewRole());
-
 		userService.updateUserRole(targetId, request.getNewRole(), userCertDto);
 		return ResponseEntity.ok(ApiResponse.success("角色更新成功", null));
 	}

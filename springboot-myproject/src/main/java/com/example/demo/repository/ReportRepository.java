@@ -5,11 +5,14 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.model.dto.reportDto.ReportDisplayDto;
 import com.example.demo.model.entity.Report;
+
 
 @Repository
 public interface ReportRepository extends JpaRepository<Report, Integer> {
@@ -36,4 +39,9 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 	@EntityGraph(attributePaths = { "artwork", "artwork.user", "artwork.tags", "reporter" })
 	Optional<Report> findById(Integer id);
 
+	@Modifying
+	@Query("DELETE FROM Report r WHERE r.artwork.id = :artworkId")
+	void deleteByArtworkId(@Param("artworkId") Integer artworkId);
+	
+	
 }

@@ -1,8 +1,8 @@
 package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,6 @@ import com.example.demo.model.dto.reportDto.ReportDisplayDto;
 import com.example.demo.model.dto.reportDto.ReportRequestDto;
 import com.example.demo.model.dto.userdto.UserCertDto;
 import com.example.demo.model.entity.Artwork;
-import com.example.demo.model.entity.Favourite;
 import com.example.demo.model.entity.Report;
 import com.example.demo.model.entity.Tag;
 import com.example.demo.model.entity.User;
@@ -119,28 +118,34 @@ public class ReportServiceImpl implements ReportService {
 		User admin = userRepository.findById(adminDto.getUserId()).orElseThrow(() -> new RuntimeException("非管理員身份"));
 
 		Artwork artwork = artworkRepository.findById(report.getArtwork().getId())
-	            .orElseThrow(() -> new RuntimeException("作品不存在"));
-
+				.orElseThrow(() -> new RuntimeException("作品不存在"));
 
 		// 刪除作品的所有關聯關係
-		List<Tag> tags = new ArrayList<>(artwork.getTags());
-		likesRepository.deleteByArtworkId(artwork.getId());
-		List<Favourite> favourites = favouriteRepository.findByArtworkId(artwork.getId());
-		favouriteRepository.deleteAll(favourites);
+		List<Integer> tagIds = artwork.getTags().stream().map(Tag::getId).collect(Collectors.toList());
 		
-		for (Tag tag : tags) {
-			int count = tagRepository.countArtworkByTagId(tag.getId());
-			if (count == 0) {
-				tagRepository.deleteById(tag.getId());
-			}
+		reportRepository.delete(report);
+		reportRepository.flush();
+		
+		for (Tag tag : artwork.getTags()) {
+		    tag.getArtworks().remove(artwork);
 		}
-		artworkRepository.delete(artwork);
+		artwork.getTags().clear();
+		artworkRepository.saveAndFlush(artwork); // 更新中介表
 
+		likesRepository.deleteByArtworkId(artwork.getId());
+		favouriteRepository.deleteAllByArtworkId(artwork.getId());
+
+		artworkRepository.delete(artwork);
+		
+		for (Integer tagId : tagIds) {
+		    if (tagRepository.countArtworkByTagId(tagId) == 0) {
+		        tagRepository.deleteById(tagId);
+		    }
+		}
+		
 		// 發送通知
 		notificationService.sendNotification(admin, report.getReporter(), NotificationMessageType.REPORT_APPROVED);
 		notificationService.sendNotification(admin, artwork.getUser(), NotificationMessageType.ARTWORK_REMOVED);
-
-		reportRepository.delete(report);
 
 	}
 
