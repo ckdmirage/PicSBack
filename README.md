@@ -2,7 +2,7 @@
 ---
 這是一個創作者分享論壇網站，使用者可以上傳以及刪除自己的作品，也可以按讚、收藏以及檢舉其他用戶的作品，或者與其他用戶進行追蹤交互。其他還附有標籤分類，關鍵字查詢等功能。
 
-<img width="1280" alt="Image" src="https://github.com/user-attachments/assets/dd8fc898-099b-403e-91eb-d4269ac5e17a" />
+![示意圖](https://github.com/ckdmirage/PicSReact/blob/main/%E5%B1%95%E7%A4%BA%E7%94%A8%E5%9C%96%E7%89%87/1.png?raw=true)
 
 ## 系統架構
 本系統採用前後端分離架構，後端使用Java、SpringBoot框架，採用了Spring MVC架構。資料庫方面使用JPA實現後端與資料庫的連結。 前端使用了ReactJS，前後端之間使用RESTful API實現資料交互。
